@@ -1,0 +1,3805 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>V2 Architecture Blueprint — Property Web3 Portal</title>
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy: #0d1b2a;
+      --navy-mid: #1a2e45;
+      --navy-light: #243b55;
+      --accent: #2e86de;
+      --accent-light: #74b9ff;
+      --gold: #f9ca24;
+      --green: #00b894;
+      --red: #d63031;
+      --orange: #e17055;
+      --white: #ffffff;
+      --off-white: #f4f7fb;
+      --gray-100: #e8edf4;
+      --gray-200: #c8d3e0;
+      --gray-400: #8899aa;
+      --gray-600: #4a5568;
+      --text: #1a2236;
+      --text-muted: #4a5568;
+      --font-body: 'Georgia', 'Times New Roman', serif;
+      --font-sans: 'Helvetica Neue', 'Arial', sans-serif;
+      --font-mono: 'Courier New', 'Courier', monospace;
+      --page-w: 210mm;
+      --content-w: 170mm;
+    }
+
+    html { font-size: 11pt; }
+
+    body {
+      font-family: var(--font-sans);
+      color: var(--text);
+      background: var(--white);
+      line-height: 1.65;
+    }
+
+    /* ===== COVER PAGE ===== */
+    .cover {
+      width: var(--page-w);
+      min-height: 297mm;
+      margin: 0 auto;
+      background: var(--navy);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30mm 20mm;
+      position: relative;
+      page-break-after: always;
+    }
+
+    .cover-logo {
+      font-family: var(--font-mono);
+      font-size: 12pt;
+      color: var(--accent-light);
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      margin-bottom: 16mm;
+      border: 1px solid var(--accent);
+      padding: 6px 18px;
+      border-radius: 4px;
+    }
+
+    .cover h1 {
+      font-family: var(--font-sans);
+      font-size: 28pt;
+      font-weight: 900;
+      color: var(--white);
+      text-align: center;
+      line-height: 1.2;
+      margin-bottom: 6mm;
+      letter-spacing: -0.02em;
+    }
+
+    .cover h1 span {
+      color: var(--accent-light);
+      display: block;
+      font-size: 18pt;
+      font-weight: 400;
+      margin-top: 4mm;
+    }
+
+    .cover-subtitle {
+      font-size: 12pt;
+      color: var(--gray-200);
+      text-align: center;
+      max-width: 130mm;
+      margin: 8mm auto 16mm;
+      line-height: 1.7;
+    }
+
+    .cover-divider {
+      width: 80mm;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      margin: 8mm auto;
+    }
+
+    .cover-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6mm 12mm;
+      margin-top: 12mm;
+      width: 130mm;
+    }
+
+    .cover-meta-item {
+      border-left: 3px solid var(--accent);
+      padding-left: 8px;
+    }
+
+    .cover-meta-item .label {
+      font-size: 7.5pt;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .cover-meta-item .value {
+      font-size: 9.5pt;
+      color: var(--white);
+      font-weight: 600;
+    }
+
+    .cover-ascii {
+      margin: 12mm auto 0;
+      font-family: var(--font-mono);
+      font-size: 7pt;
+      color: var(--navy-light);
+      line-height: 1.3;
+      text-align: center;
+      white-space: pre;
+    }
+
+    /* ===== PAGE WRAPPER ===== */
+    .page {
+      width: var(--page-w);
+      margin: 0 auto;
+      padding: 20mm 20mm 25mm;
+      position: relative;
+    }
+
+    /* ===== TABLE OF CONTENTS ===== */
+    .toc-page {
+      page-break-after: always;
+      border-top: 4px solid var(--accent);
+      padding-top: 16mm;
+    }
+
+    .toc-title {
+      font-family: var(--font-sans);
+      font-size: 20pt;
+      font-weight: 800;
+      color: var(--navy);
+      margin-bottom: 10mm;
+      padding-bottom: 4mm;
+      border-bottom: 2px solid var(--gray-100);
+    }
+
+    .toc-list { list-style: none; }
+
+    .toc-section {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      padding: 3.5px 0;
+      border-bottom: 1px dotted var(--gray-200);
+    }
+
+    .toc-section-num {
+      font-weight: 700;
+      color: var(--accent);
+      min-width: 12mm;
+      font-size: 10pt;
+    }
+
+    .toc-section-title {
+      flex: 1;
+      padding: 0 6px;
+      font-size: 10pt;
+      color: var(--text);
+    }
+
+    .toc-section-pg {
+      font-size: 9pt;
+      color: var(--gray-400);
+      font-family: var(--font-mono);
+    }
+
+    .toc-section.h2 .toc-section-title {
+      font-weight: 700;
+      font-size: 10.5pt;
+      color: var(--navy);
+      padding-top: 4px;
+    }
+
+    .toc-section.sub { padding-left: 14mm; }
+    .toc-section.sub .toc-section-title { font-size: 9pt; color: var(--text-muted); }
+
+    /* ===== SECTION HEADINGS ===== */
+    .section {
+      margin-bottom: 14mm;
+      page-break-inside: avoid;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 8mm;
+      padding-bottom: 4mm;
+      border-bottom: 3px solid var(--navy);
+    }
+
+    .section-num {
+      background: var(--navy);
+      color: var(--white);
+      font-family: var(--font-sans);
+      font-size: 11pt;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 3px;
+      white-space: nowrap;
+      margin-top: 2px;
+    }
+
+    h2.section-title {
+      font-family: var(--font-sans);
+      font-size: 17pt;
+      font-weight: 800;
+      color: var(--navy);
+      line-height: 1.2;
+    }
+
+    h3 {
+      font-family: var(--font-sans);
+      font-size: 12.5pt;
+      font-weight: 700;
+      color: var(--navy-mid);
+      margin: 8mm 0 3mm;
+      padding-left: 10px;
+      border-left: 4px solid var(--accent);
+    }
+
+    h4 {
+      font-family: var(--font-sans);
+      font-size: 10.5pt;
+      font-weight: 700;
+      color: var(--navy);
+      margin: 6mm 0 2mm;
+    }
+
+    p {
+      margin-bottom: 4mm;
+      font-size: 10.5pt;
+      line-height: 1.7;
+      color: var(--text);
+    }
+
+    /* ===== CODE BLOCKS ===== */
+    pre, code {
+      font-family: var(--font-mono);
+      font-size: 8.5pt;
+    }
+
+    pre {
+      background: var(--navy);
+      color: #c8d8e4;
+      padding: 12px 16px;
+      border-radius: 6px;
+      overflow-x: auto;
+      margin: 4mm 0 6mm;
+      line-height: 1.5;
+      border-left: 4px solid var(--accent);
+    }
+
+    pre.ascii-diagram {
+      background: #f4f7fb;
+      color: var(--navy);
+      border-left: 4px solid var(--gray-200);
+      font-size: 8pt;
+    }
+
+    code {
+      background: var(--gray-100);
+      color: var(--navy);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 8.5pt;
+    }
+
+    /* ===== TABLES ===== */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 4mm 0 8mm;
+      font-size: 9pt;
+      page-break-inside: avoid;
+    }
+
+    thead tr { background: var(--navy); }
+    thead th {
+      color: var(--white);
+      font-weight: 700;
+      padding: 8px 10px;
+      text-align: left;
+      font-size: 8.5pt;
+      letter-spacing: 0.04em;
+    }
+
+    tbody tr:nth-child(even) { background: var(--off-white); }
+    tbody tr:hover { background: var(--gray-100); }
+
+    tbody td {
+      padding: 7px 10px;
+      border-bottom: 1px solid var(--gray-100);
+      vertical-align: top;
+      line-height: 1.5;
+    }
+
+    td code { font-size: 7.5pt; }
+
+    /* ===== CALLOUT BOXES ===== */
+    .callout {
+      border-radius: 6px;
+      padding: 10px 14px;
+      margin: 4mm 0;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      page-break-inside: avoid;
+    }
+
+    .callout-icon { font-size: 13pt; flex-shrink: 0; margin-top: 1px; }
+
+    .callout-body { flex: 1; }
+
+    .callout-title {
+      font-weight: 700;
+      font-size: 9.5pt;
+      margin-bottom: 3px;
+      display: block;
+    }
+
+    .callout p { margin-bottom: 0; font-size: 9.5pt; line-height: 1.6; }
+
+    .callout.critical { background: #fdf0f0; border-left: 4px solid var(--red); }
+    .callout.critical .callout-title { color: var(--red); }
+
+    .callout.warning { background: #fef6ee; border-left: 4px solid var(--orange); }
+    .callout.warning .callout-title { color: var(--orange); }
+
+    .callout.best-practice { background: #f0faf6; border-left: 4px solid var(--green); }
+    .callout.best-practice .callout-title { color: #00846e; }
+
+    .callout.info { background: #eef5fe; border-left: 4px solid var(--accent); }
+    .callout.info .callout-title { color: var(--accent); }
+
+    /* ===== LISTS ===== */
+    ul, ol {
+      margin: 3mm 0 5mm 6mm;
+      padding-left: 6mm;
+      font-size: 10pt;
+      line-height: 1.7;
+    }
+
+    li { margin-bottom: 2px; }
+    li strong { color: var(--navy); }
+
+    /* ===== PHASE BOXES ===== */
+    .phase-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6mm;
+      margin: 6mm 0;
+    }
+
+    .phase-box {
+      border: 2px solid var(--gray-100);
+      border-radius: 8px;
+      padding: 12px 14px;
+      page-break-inside: avoid;
+    }
+
+    .phase-box-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .phase-num {
+      background: var(--accent);
+      color: var(--white);
+      font-weight: 800;
+      font-size: 9pt;
+      padding: 2px 8px;
+      border-radius: 3px;
+    }
+
+    .phase-title {
+      font-weight: 700;
+      font-size: 10pt;
+      color: var(--navy);
+    }
+
+    .phase-weeks {
+      font-size: 8pt;
+      color: var(--gray-400);
+      margin-left: auto;
+    }
+
+    .phase-box ul { margin: 0; padding-left: 14px; }
+    .phase-box li { font-size: 9pt; line-height: 1.55; }
+
+    /* ===== PRINCIPLE CARDS ===== */
+    .principles-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 5mm;
+      margin: 6mm 0;
+    }
+
+    .principle-card {
+      background: var(--off-white);
+      border: 1px solid var(--gray-100);
+      border-top: 4px solid var(--accent);
+      border-radius: 6px;
+      padding: 12px;
+      page-break-inside: avoid;
+    }
+
+    .principle-card .icon { font-size: 18pt; margin-bottom: 6px; display: block; }
+    .principle-card h4 { font-size: 9.5pt; margin: 0 0 5px; color: var(--navy); }
+    .principle-card p { font-size: 8.5pt; margin: 0; color: var(--text-muted); line-height: 1.55; }
+
+    /* ===== PIPELINE FLOW ===== */
+    .pipeline {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0;
+      margin: 6mm 0;
+    }
+
+    .pipeline-step {
+      background: var(--navy-mid);
+      color: var(--white);
+      padding: 7px 12px;
+      font-size: 8.5pt;
+      font-weight: 600;
+      position: relative;
+      white-space: nowrap;
+    }
+
+    .pipeline-step:not(:last-child)::after {
+      content: '▶';
+      color: var(--accent);
+      font-size: 10pt;
+      padding: 0 6px;
+    }
+
+    .pipeline-step.active { background: var(--accent); }
+    .pipeline-step.frozen { background: #b2bec3; color: var(--navy); }
+
+    /* ===== TOKEN STATE BADGES ===== */
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 7.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .badge.draft { background: #dfe6e9; color: #636e72; }
+    .badge.review { background: #ffeaa7; color: #856404; }
+    .badge.approved { background: #d1f5e0; color: #1a7a4a; }
+    .badge.active { background: #dfe8ff; color: #2d3bac; }
+    .badge.frozen { background: #e5e5e5; color: #555; }
+    .badge.redeemed { background: #f5e6ff; color: #6c3483; }
+
+    /* ===== SCHEMA BLOCKS ===== */
+    .schema-table-name {
+      background: var(--navy-mid);
+      color: var(--accent-light);
+      font-family: var(--font-mono);
+      font-size: 10pt;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 4px 4px 0 0;
+      margin-top: 6mm;
+      margin-bottom: 0;
+      display: inline-block;
+    }
+
+    .schema-block {
+      border: 1px solid var(--navy-mid);
+      border-radius: 0 6px 6px 6px;
+      overflow: hidden;
+      margin-bottom: 5mm;
+    }
+
+    .schema-block table { margin: 0; }
+    .schema-block thead th { background: var(--navy-light); font-size: 7.5pt; }
+    .schema-block tbody td { font-size: 8.5pt; }
+    .schema-block tbody td:first-child { font-family: var(--font-mono); color: var(--accent); }
+    .schema-block tbody td:nth-child(2) { font-family: var(--font-mono); color: #636e72; }
+    .schema-block .pk { color: var(--gold) !important; font-weight: 700; }
+    .schema-block .fk { color: var(--accent-light) !important; }
+    .schema-block .no-col { color: var(--red) !important; font-style: italic; }
+
+    /* ===== RLS BOX ===== */
+    .rls-box {
+      background: var(--navy);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 4mm 0;
+    }
+
+    .rls-box .rls-label {
+      color: var(--accent-light);
+      font-family: var(--font-mono);
+      font-size: 7.5pt;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .rls-box pre {
+      background: transparent;
+      border: none;
+      padding: 0;
+      margin: 0;
+      color: #a8d8ea;
+      font-size: 8.5pt;
+    }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 14mm;
+      background: var(--navy);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20mm;
+    }
+
+    .footer-left {
+      font-size: 7.5pt;
+      color: var(--gray-400);
+      font-family: var(--font-sans);
+    }
+
+    .footer-center {
+      font-size: 7.5pt;
+      color: var(--gray-400);
+      font-family: var(--font-mono);
+    }
+
+    .footer-right {
+      font-size: 7.5pt;
+      color: var(--gray-400);
+      font-family: var(--font-sans);
+    }
+
+    /* ===== COMPARISON TABLE ===== */
+    .compare-table thead th:nth-child(1) { background: #243b55; width: 30%; }
+    .compare-table thead th:nth-child(2) { background: #7f1d1d; width: 35%; }
+    .compare-table thead th:nth-child(3) { background: #14532d; width: 35%; }
+
+    .compare-table td:nth-child(2) { background: #fff9f9; }
+    .compare-table td:nth-child(3) { background: #f0faf4; }
+
+    .compare-table .v1-bad { color: var(--red); }
+    .compare-table .v2-good { color: #15803d; font-weight: 600; }
+
+    /* ===== DIVIDERS ===== */
+    .section-divider {
+      border: none;
+      border-top: 1px solid var(--gray-100);
+      margin: 10mm 0;
+    }
+
+    /* ===== PAGE BREAK HELPERS ===== */
+    .page-break { page-break-after: always; }
+    .no-break { page-break-inside: avoid; }
+
+    /* ===== PRINT STYLES ===== */
+    @media print {
+      html { font-size: 10pt; }
+
+      body { background: white; }
+
+      .cover {
+        background: var(--navy) !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        color-adjust: exact;
+      }
+
+      .cover-logo, .cover h1, .cover-subtitle, .cover-meta-item .label,
+      .cover-meta-item .value { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+      .section-num, thead tr, .phase-num, .rls-box, pre,
+      .callout.critical, .callout.warning, .callout.best-practice, .callout.info,
+      .schema-block thead, .principle-card, .footer {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        color-adjust: exact;
+      }
+
+      .page { padding: 15mm 15mm 20mm; }
+
+      h2.section-title { font-size: 15pt; }
+
+      .phase-grid { grid-template-columns: 1fr 1fr; }
+      .principles-grid { grid-template-columns: 1fr 1fr 1fr; }
+
+      @page {
+        size: A4;
+        margin: 0;
+      }
+
+      @page :first { margin: 0; }
+    }
+
+    /* ===== SCREEN ONLY ===== */
+    @media screen {
+      body { background: #e8edf4; }
+      .cover, .page { box-shadow: 0 4px 24px rgba(0,0,0,0.18); margin-bottom: 8mm; }
+      .footer { position: static; border-radius: 0 0 6px 6px; }
+    }
+
+    /* ===== TOKEN MATRIX ===== */
+    .token-matrix td { text-align: center; }
+    .token-matrix td:first-child { text-align: left; }
+    .yes { color: var(--green); font-weight: 700; }
+    .no { color: #b2bec3; }
+    .partial { color: var(--orange); }
+
+    /* ===== INLINE HIGHLIGHT ===== */
+    .highlight { background: #fff3cd; padding: 1px 4px; border-radius: 3px; }
+    .mono { font-family: var(--font-mono); font-size: 8.5pt; }
+
+    /* ===== KYC STATUS FLOW ===== */
+    .status-flow {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin: 4mm 0;
+      flex-wrap: wrap;
+    }
+    .status-node {
+      padding: 5px 12px;
+      border-radius: 14px;
+      font-size: 8.5pt;
+      font-weight: 700;
+    }
+    .status-arrow { color: var(--gray-400); font-size: 12pt; }
+
+    /* ===== FUNCTION GROUP CARDS ===== */
+    .fn-group { margin: 5mm 0; }
+    .fn-group-title {
+      background: var(--navy-mid);
+      color: var(--accent-light);
+      font-family: var(--font-mono);
+      font-size: 9pt;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 4px 4px 0 0;
+      letter-spacing: 0.05em;
+    }
+    .fn-group-body {
+      border: 1px solid var(--navy-mid);
+      border-top: none;
+      border-radius: 0 0 6px 6px;
+      padding: 10px 14px;
+    }
+    .fn-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 8px;
+    }
+    .fn-tag {
+      background: var(--off-white);
+      border: 1px solid var(--gray-200);
+      font-family: var(--font-mono);
+      font-size: 7.5pt;
+      padding: 2px 8px;
+      border-radius: 3px;
+      color: var(--navy);
+    }
+    .fn-desc { font-size: 9pt; color: var(--text-muted); }
+
+    /* ===== INLINE SEVERITY ===== */
+    .sev-critical { color: var(--red); font-weight: 700; }
+    .sev-high { color: var(--orange); font-weight: 700; }
+    .sev-medium { color: #d4ac0d; font-weight: 700; }
+
+  </style>
+</head>
+<body>
+
+<!-- ============================================================ -->
+<!--  COVER PAGE                                                   -->
+<!-- ============================================================ -->
+<div class="cover">
+  <div class="cover-logo">Property Web3 Portal</div>
+
+  <h1>
+    V2 Architecture Blueprint
+    <span>Multi-Tenant Real Estate Tokenization on XRPL</span>
+  </h1>
+
+  <div class="cover-subtitle">
+    A comprehensive specification for rebuilding the RWA tokenization platform from scratch —
+    addressing V1 security issues, adding multi-tenancy, and establishing production-grade
+    engineering standards.
+  </div>
+
+  <div class="cover-divider"></div>
+
+  <div class="cover-meta">
+    <div class="cover-meta-item">
+      <span class="label">Document Version</span>
+      <span class="value">V2.0 — Draft</span>
+    </div>
+    <div class="cover-meta-item">
+      <span class="label">Date</span>
+      <span class="value">March 2026</span>
+    </div>
+    <div class="cover-meta-item">
+      <span class="label">Blockchain</span>
+      <span class="value">XRP Ledger (XRPL)</span>
+    </div>
+    <div class="cover-meta-item">
+      <span class="label">Token Standards</span>
+      <span class="value">MPT (XLS-33/89), NFT (XLS-20)</span>
+    </div>
+    <div class="cover-meta-item">
+      <span class="label">Backend</span>
+      <span class="value">Supabase + Deno Edge Fns</span>
+    </div>
+    <div class="cover-meta-item">
+      <span class="label">Frontend</span>
+      <span class="value">Next.js 14 + Tailwind + shadcn</span>
+    </div>
+    <div class="cover-meta-item">
+      <span class="label">Architecture</span>
+      <span class="value">Multi-Tenant SaaS</span>
+    </div>
+    <div class="cover-meta-item">
+      <span class="label">Status</span>
+      <span class="value">Pre-Build Specification</span>
+    </div>
+  </div>
+
+  <pre class="cover-ascii">
+  ╔══════════════════════════════════════════════════════╗
+  ║  TENANT A          TENANT B          TENANT C        ║
+  ║  [Realty Co.]      [PropFund]        [InvestRE]      ║
+  ╚══════════╤═══════════════╤═══════════════╤═══════════╝
+             │               │               │
+             └───────────────┼───────────────┘
+                             │
+                    ┌────────▼────────┐
+                    │  PLATFORM CORE  │
+                    │  Next.js + Edge │
+                    └────────┬────────┘
+                             │
+               ┌─────────────┼─────────────┐
+               │             │             │
+         ┌─────▼─────┐ ┌────▼────┐ ┌──────▼──────┐
+         │ Supabase  │ │  XRPL   │ │   Xaman     │
+         │   DB+Auth │ │ Ledger  │ │  QR Wallet  │
+         └───────────┘ └─────────┘ └─────────────┘
+  </pre>
+</div>
+
+<!-- ============================================================ -->
+<!--  TABLE OF CONTENTS                                            -->
+<!-- ============================================================ -->
+<div class="page toc-page">
+  <div class="toc-title">Table of Contents</div>
+  <ul class="toc-list">
+    <li class="toc-section h2">
+      <span class="toc-section-num">1</span>
+      <span class="toc-section-title">Executive Summary</span>
+      <span class="toc-section-pg">3</span>
+    </li>
+    <li class="toc-section sub">
+      <span class="toc-section-num"></span>
+      <span class="toc-section-title">Platform Overview &bull; Why Rebuild &bull; V2 Goals</span>
+      <span class="toc-section-pg"></span>
+    </li>
+    <li class="toc-section h2">
+      <span class="toc-section-num">2</span>
+      <span class="toc-section-title">What We Learned From V1 — Lessons Learned</span>
+      <span class="toc-section-pg">4</span>
+    </li>
+    <li class="toc-section sub">
+      <span class="toc-section-num"></span>
+      <span class="toc-section-title">Security Issues &bull; God Objects &bull; AI-Assisted Drift &bull; Data Fetching</span>
+      <span class="toc-section-pg"></span>
+    </li>
+    <li class="toc-section h2">
+      <span class="toc-section-num">3</span>
+      <span class="toc-section-title">V2 Core Design Principles</span>
+      <span class="toc-section-pg">6</span>
+    </li>
+    <li class="toc-section h2">
+      <span class="toc-section-num">4</span>
+      <span class="toc-section-title">Multi-Tenancy Architecture</span>
+      <span class="toc-section-pg">8</span>
+    </li>
+    <li class="toc-section sub">
+      <span class="toc-section-num"></span>
+      <span class="toc-section-title">Tenant Model &bull; DB Isolation &bull; Subdomain Routing &bull; Config &bull; Roles</span>
+      <span class="toc-section-pg"></span>
+    </li>
+    <li class="toc-section h2">
+      <span class="toc-section-num">5</span>
+      <span class="toc-section-title">Tokenization Engine Design</span>
+      <span class="toc-section-pg">11</span>
+    </li>
+    <li class="toc-section sub">
+      <span class="toc-section-num"></span>
+      <span class="toc-section-title">Pipeline &bull; Token Types &bull; Lifecycle &bull; Economics &bull; Metadata &bull; Compliance</span>
+      <span class="toc-section-pg"></span>
+    </li>
+    <li class="toc-section h2">
+      <span class="toc-section-num">6</span>
+      <span class="toc-section-title">Database Schema (V2)</span>
+      <span class="toc-section-pg">15</span>
+    </li>
+    <li class="toc-section sub">
+      <span class="toc-section-num"></span>
+      <span class="toc-section-title">All Tables &bull; RLS Patterns &bull; Indexes &bull; Relationships</span>
+      <span class="toc-section-pg"></span>
+    </li>
+    <li class="toc-section h2">
+      <span class="toc-section-num">7</span>
+      <span class="toc-section-title">API / Backend Design — Edge Functions V2</span>
+      <span class="toc-section-pg">21</span>
+    </li>
+    <li class="toc-section sub">
+      <span class="toc-section-num"></span>
+      <span class="toc-section-title">Function Groups &bull; Rate Limiting &bull; Logging &bull; Auth Pattern</span>
+      <span class="toc-section-pg"></span>
+    </li>
+    <li class="toc-section h2">
+      <span class="toc-section-num">8</span>
+      <span class="toc-section-title">Wallet &amp; Key Management — Security Model</span>
+      <span class="toc-section-pg">24</span>
+    </li>
+    <li class="toc-section sub">
+      <span class="toc-section-num"></span>
+      <span class="toc-section-title">No Raw Keys &bull; Vault Pattern &bull; Xaman &bull; Audit &bull; Inactivity</span>
+      <span class="toc-section-pg"></span>
+    </li>
+    <li class="toc-section h2">
+      <span class="toc-section-num">9</span>
+      <span class="toc-section-title">Frontend Architecture (V2)</span>
+      <span class="toc-section-pg">27</span>
+    </li>
+    <li class="toc-section sub">
+      <span class="toc-section-num"></span>
+      <span class="toc-section-title">Next.js 14 &bull; Zustand &bull; React Query &bull; Error Boundaries &bull; Routing</span>
+      <span class="toc-section-pg"></span>
+    </li>
+    <li class="toc-section h2">
+      <span class="toc-section-num">10</span>
+      <span class="toc-section-title">XRPL Integration (V2)</span>
+      <span class="toc-section-pg">30</span>
+    </li>
+    <li class="toc-section sub">
+      <span class="toc-section-num"></span>
+      <span class="toc-section-title">Token Decision Matrix &bull; Parallel Requests &bull; Node Failover &bull; Types</span>
+      <span class="toc-section-pg"></span>
+    </li>
+    <li class="toc-section h2">
+      <span class="toc-section-num">11</span>
+      <span class="toc-section-title">KYC / Compliance Layer</span>
+      <span class="toc-section-pg">33</span>
+    </li>
+    <li class="toc-section h2">
+      <span class="toc-section-num">12</span>
+      <span class="toc-section-title">Implementation Roadmap</span>
+      <span class="toc-section-pg">35</span>
+    </li>
+    <li class="toc-section sub">
+      <span class="toc-section-num"></span>
+      <span class="toc-section-title">Phase 1–5: Foundation → Hardening (Weeks 1–20)</span>
+      <span class="toc-section-pg"></span>
+    </li>
+    <li class="toc-section h2">
+      <span class="toc-section-num">13</span>
+      <span class="toc-section-title">Technology Choices — V1 vs V2 Comparison</span>
+      <span class="toc-section-pg">38</span>
+    </li>
+  </ul>
+
+  <div style="margin-top: 12mm; padding: 10px 14px; background: var(--off-white); border-radius: 6px; border-left: 4px solid var(--accent);">
+    <p style="font-size: 9pt; color: var(--text-muted); margin: 0;">
+      <strong>How to use this document:</strong> This blueprint is organized so that each section can be read independently.
+      Engineering teams should read Sections 6–10 in depth. Product and business stakeholders should focus on
+      Sections 1–4 and 12. Security reviewers should focus on Sections 7–8 and 11.
+      Code snippets are illustrative; final implementations may vary.
+    </p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  SECTION 1: EXECUTIVE SUMMARY                                 -->
+<!-- ============================================================ -->
+<div class="page page-break">
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <h2 class="section-title">Executive Summary</h2>
+    </div>
+
+    <h3>1.1 What This Platform Does</h3>
+    <p>
+      The Property Web3 Portal is a <strong>multi-tenant SaaS platform</strong> that enables real estate companies,
+      investment funds, and property developers to tokenize real-world property assets on the <strong>XRP Ledger (XRPL)</strong>.
+      The platform bridges traditional real estate investment with blockchain-native ownership, allowing fractional
+      property ownership through <strong>Multi-Purpose Tokens (MPT)</strong> under the XLS-33 and XLS-89 standards.
+    </p>
+    <p>
+      Real estate operators — the <em>tenants</em> of this SaaS platform — run branded investor portals through
+      which their end users can browse properties, pass KYC/AML verification, purchase fractional token shares,
+      track their portfolio, and participate in secondary market trading. All blockchain operations are proxied
+      through secure server-side edge functions; no private keys or signing operations ever occur in the browser.
+    </p>
+
+    <div class="callout info no-break">
+      <span class="callout-icon">&#8505;</span>
+      <div class="callout-body">
+        <span class="callout-title">Platform Hierarchy</span>
+        <p><strong>Platform (us)</strong> → operates the SaaS infrastructure and charges tenants commission / subscription fees.<br>
+        <strong>Tenants</strong> → real estate companies or investment managers who run white-labeled property portals.<br>
+        <strong>End Users</strong> → retail or accredited investors who buy fractional token shares through tenant portals.</p>
+      </div>
+    </div>
+
+    <h3>1.2 Why We Are Rebuilding</h3>
+    <p>
+      Version 1 was built as a rapid prototype using <strong>Lovable</strong>, an AI-assisted development platform that
+      auto-generates and commits code. While this accelerated initial delivery to over 250 commits, the resulting
+      codebase carries significant technical debt that makes it unsuitable for production use.
+    </p>
+    <p>
+      The V1 code audit identified <strong>3 critical issues</strong>, <strong>8 high-priority issues</strong>, and
+      <strong>9 medium-priority issues</strong>. Most critically, a wallet secret storage vulnerability (issue C1)
+      stores private key material in plaintext in the application database — an unacceptable security posture for
+      any production financial platform. Combined with the absence of multi-tenancy, missing type safety on
+      blockchain responses, no rate limiting, and a god-object context architecture, a clean rebuild is the
+      more economical path compared to incremental remediation.
+    </p>
+
+    <div class="callout critical no-break">
+      <span class="callout-icon">&#9888;</span>
+      <div class="callout-body">
+        <span class="callout-title">Critical: Do Not Deploy V1 to Production</span>
+        <p>V1 stores <code>wallet_secret</code> (raw XRPL private keys) in an unencrypted database column.
+        V1 has no multi-tenant data isolation — all user data is shared in a single schema with minimal RLS.
+        V1 has no rate limiting on any edge functions. V1 must not be used for any real-money (mainnet) transactions
+        beyond internal testing.</p>
+      </div>
+    </div>
+
+    <h3>1.3 Key Goals for V2</h3>
+
+    <table>
+      <thead>
+        <tr>
+          <th style="width:20%">Goal</th>
+          <th style="width:40%">Description</th>
+          <th style="width:40%">Success Metric</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Security-First</strong></td>
+          <td>Eliminate all critical and high security issues from the V1 audit. No raw key storage. Vault-backed signing references only.</td>
+          <td>Zero critical findings in external security audit</td>
+        </tr>
+        <tr>
+          <td><strong>Multi-Tenancy</strong></td>
+          <td>Full tenant isolation at DB (RLS), API (JWT claims), and frontend (subdomain routing) layers from day one.</td>
+          <td>10+ independent tenants operating without data leakage</td>
+        </tr>
+        <tr>
+          <td><strong>Type Safety</strong></td>
+          <td>All XRPL responses, DB queries, and API calls fully typed. No <code>any</code> in blockchain-facing code.</td>
+          <td>0 TypeScript <code>any</code> in <code>xrpl-*</code> modules; Supabase types auto-regenerated on every migration</td>
+        </tr>
+        <tr>
+          <td><strong>Compliance Ready</strong></td>
+          <td>KYC integration, MPTokenAuthorize flow, clawback controls, and full audit trail for regulatory compliance.</td>
+          <td>Supports Persona/Onfido; all token transfers logged immutably</td>
+        </tr>
+        <tr>
+          <td><strong>Observable</strong></td>
+          <td>Structured JSON logging on all edge functions, rate limiting, error reporting, and distributed tracing.</td>
+          <td>P95 latency dashboards; zero silent failures</td>
+        </tr>
+        <tr>
+          <td><strong>Testable</strong></td>
+          <td>Clean separation of concerns allowing unit tests for edge functions and E2E tests for critical flows.</td>
+          <td>80%+ coverage on tokenization pipeline; Playwright E2E for mint + transfer</td>
+        </tr>
+        <tr>
+          <td><strong>Scalable SaaS</strong></td>
+          <td>Tenant onboarding wizard, white-label branding, usage metering, and billing integration.</td>
+          <td>New tenant onboarded in &lt;1 hour via self-service wizard</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  SECTION 2: LESSONS LEARNED                                   -->
+<!-- ============================================================ -->
+<div class="page page-break">
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <h2 class="section-title">What We Learned From V1 — Lessons Learned</h2>
+    </div>
+
+    <p>
+      The V1 codebase was audited thoroughly before beginning V2 design. The following lessons represent the most
+      important architectural and operational insights extracted from that analysis. Each lesson directly informs
+      a V2 design decision.
+    </p>
+
+    <h3>2.1 Critical: Raw Private Key Storage</h3>
+
+    <div class="callout critical no-break">
+      <span class="callout-icon">&#9888;</span>
+      <div class="callout-body">
+        <span class="callout-title">Audit Issue C1 — wallet_secret stored unencrypted in user_wallets table</span>
+        <p>The testnet faucet flow stored users' raw XRPL wallet secrets (private keys) directly in the
+        <code>user_wallets</code> table as a plaintext column. The edge function <code>xrpl-submit-signed</code>
+        fetched this column to perform server-side transaction signing. While implemented as testnet-only,
+        no runtime guard prevented a mainnet key from being stored the same way. A single database breach
+        would expose all private keys.</p>
+      </div>
+    </div>
+
+    <p>
+      <strong>Lesson:</strong> Never architect a system where a database SELECT can return a signing key.
+      Private key material must never enter a relational database, even encrypted. V2 uses a <strong>vault reference pattern</strong>:
+      the database stores only an opaque vault key ID, while the actual key material lives in a dedicated
+      secrets service (Supabase Vault or HSM). For testnet, a single platform-owned funded wallet handles
+      all auto-signing, eliminating per-user key storage entirely.
+    </p>
+
+    <h3>2.2 God Object Contexts</h3>
+    <p>
+      <code>ActiveWalletContext.tsx</code> grew to over 300 lines and accumulated seven distinct responsibilities:
+      DB wallet loading, active wallet selection, localStorage persistence, wallet CRUD operations, audit logging,
+      connect modal state, and inactivity timeout orchestration. This violated the Single Responsibility Principle
+      and made the file extremely fragile — any change to one area risked breaking another.
+    </p>
+    <p>
+      <strong>Lesson:</strong> Global state management must be decomposed early. In V2, wallet state is split across
+      a Zustand store (<code>useWalletStore</code>), a connect hook (<code>useWalletConnect</code>), and
+      a standalone inactivity hook (<code>useInactivity</code>). No single file owns more than one responsibility.
+    </p>
+
+    <h3>2.3 Missing Type Safety on Blockchain Data</h3>
+    <p>
+      XRPL API responses were typed as <code>any</code> throughout the codebase — in edge functions, in React
+      hooks, and in components. Field name bugs like <code>tx.Amount</code> vs <code>tx.amount</code> were
+      undetectable at compile time. Currency decoding logic (<code>decodeCurrency</code>) was duplicated
+      inline in multiple components, leading to inconsistent display of the same token.
+    </p>
+    <p>
+      <strong>Lesson:</strong> Blockchain response types must be explicitly defined as TypeScript interfaces and
+      shared across the entire codebase via a central <code>xrpl-types.ts</code> library. All XRPL utility
+      functions (decode currency, format amount, build explorer URL) must live in a single shared module.
+    </p>
+
+    <h3>2.4 No Multi-Tenancy From Day One</h3>
+    <p>
+      The V1 schema was designed for a single operator with no <code>tenant_id</code> on any table. Adding
+      multi-tenancy to an existing schema requires migrating every table, rewriting every RLS policy, updating
+      every edge function to extract tenant context from the JWT, and changing every query. This is a
+      multi-week refactor with significant regression risk.
+    </p>
+    <p>
+      <strong>Lesson:</strong> If multi-tenancy is a goal at any point in a project's roadmap, the <code>tenant_id</code>
+      column must be present in every user-facing table from the very first migration. Retrofitting tenant isolation
+      is orders of magnitude harder than building it in from the start. V2 adds <code>tenant_id</code> to every
+      table as a non-nullable foreign key before writing a single line of application code.
+    </p>
+
+    <h3>2.5 AI-Assisted Tooling Creates Commit Drift</h3>
+    <p>
+      The V1 codebase was generated and maintained via Lovable, an AI-assisted development platform. Over 250+
+      commits, the codebase accumulated patterns that contradicted each other: two tables tracking wallet identity
+      (<code>wallet_profiles</code> vs <code>user_wallets</code>), two approaches to real-time data (WebSocket
+      subscription AND React Query polling), hardcoded test data in production components, and polling intervals
+      defined at different values in different files.
+    </p>
+    <p>
+      <strong>Lesson:</strong> AI-assisted tools accelerate early prototyping but require deliberate architectural
+      governance to prevent drift. V2 establishes <strong>Architecture Decision Records (ADRs)</strong> for every
+      significant pattern choice, ROSETTA.md as a living architectural reference, and automated linting rules to
+      enforce conventions (no <code>any</code> in XRPL code, no direct Supabase client creation outside
+      <code>client.ts</code>, etc.).
+    </p>
+
+    <h3>2.6 Competing Data-Fetching Patterns</h3>
+    <p>
+      V1 used both React Query polling and XRPL WebSocket subscriptions simultaneously for portfolio data.
+      The two systems could return different snapshots of account state, causing UI flicker and race conditions.
+      The WebSocket subscription hook (<code>useXRPLSubscription</code>) and React Query hook
+      (<code>useXRPLPortfolio</code>) had no coordination mechanism.
+    </p>
+    <p>
+      <strong>Lesson:</strong> Choose one canonical data-fetching strategy per data domain and enforce it uniformly.
+      V2 defines: <strong>React Query polling</strong> (30-second interval) for portfolio data, and
+      <strong>XRPL WebSocket</strong> for real-time transaction confirmation feedback only (not as a portfolio
+      data source). A single constant <code>XRPL_POLL_INTERVAL_MS</code> governs all polling, defined once
+      in <code>src/lib/constants.ts</code>.
+    </p>
+
+    <h3>2.7 Sequential XRPL Requests</h3>
+    <p>
+      The <code>xrpl-account-data</code> edge function issued five XRPL requests sequentially with 100ms
+      artificial delays between each. Portfolio load time was dominated by serialized round-trips: on a
+      typical connection this meant 500ms–2s of unnecessary latency on every page load.
+    </p>
+    <p>
+      <strong>Lesson:</strong> Independent blockchain queries must be issued in parallel using
+      <code>Promise.all()</code>. The sequential delays were added speculatively to avoid rate limiting;
+      in practice, XRPL nodes do not rate-limit sequential requests from the same IP at this volume.
+      If rate limiting is ever observed, implement proper exponential backoff — never fixed delays.
+    </p>
+
+    <div class="callout best-practice no-break">
+      <span class="callout-icon">&#10003;</span>
+      <div class="callout-body">
+        <span class="callout-title">Summary: V1 Issues Addressed in V2</span>
+        <p>
+          <strong>C1</strong> — No raw keys in DB (vault refs only) &bull;
+          <strong>C2/C3</strong> — Stale closures and interval leaks fixed with <code>useRef</code> + <code>useEffect</code> cleanup &bull;
+          <strong>H1</strong> — Full XRPL TypeScript types in shared library &bull;
+          <strong>H3</strong> — ActiveWalletContext split into 3 focused modules &bull;
+          <strong>M2</strong> — Error Boundaries on every major section &bull;
+          <strong>M3</strong> — Rate limiting on all edge functions &bull;
+          <strong>M5</strong> — wallet_profiles removed; single wallet table &bull;
+          <strong>M6</strong> — Single data-fetching strategy per domain &bull;
+          <strong>M9</strong> — Parallel XRPL requests via Promise.all
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  SECTION 3: V2 CORE DESIGN PRINCIPLES                         -->
+<!-- ============================================================ -->
+<div class="page page-break">
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <h2 class="section-title">V2 Core Design Principles</h2>
+    </div>
+
+    <p>
+      These six principles are non-negotiable constraints that govern every design decision in V2.
+      When two approaches are in conflict, these principles serve as the tiebreaker — in order of priority.
+    </p>
+
+    <div class="principles-grid">
+      <div class="principle-card">
+        <span class="icon">&#128274;</span>
+        <h4>1. Security First</h4>
+        <p>No raw private keys in any database. All signing is either user-controlled (Xaman/hardware wallet) or vault-referenced. Every privilege is least-privilege. Default deny, not default allow.</p>
+      </div>
+      <div class="principle-card">
+        <span class="icon">&#127968;</span>
+        <h4>2. Multi-Tenant by Default</h4>
+        <p>Every table has <code>tenant_id</code>. Every RLS policy enforces tenant isolation. Every API call extracts tenant context from JWT claims. No global queries ever touch cross-tenant data.</p>
+      </div>
+      <div class="principle-card">
+        <span class="icon">&#128062;</span>
+        <h4>3. Type-Safe Blockchain Layer</h4>
+        <p>All XRPL response shapes have explicit TypeScript interfaces. Zero <code>any</code> types in blockchain-facing code. Supabase types regenerated automatically on every DB migration.</p>
+      </div>
+      <div class="principle-card">
+        <span class="icon">&#9881;</span>
+        <h4>4. Single Responsibility</h4>
+        <p>Each module, hook, context, and edge function does exactly one thing. No god objects. Files exceeding 200 lines are a signal to refactor. Each edge function is one business action.</p>
+      </div>
+      <div class="principle-card">
+        <span class="icon">&#128202;</span>
+        <h4>5. Observable</h4>
+        <p>Structured JSON logging on all edge functions. Rate limiting with metered counters. Immutable audit logs for all sensitive operations. Error reporting via Sentry. P95 latency monitored.</p>
+      </div>
+      <div class="principle-card">
+        <span class="icon">&#128200;</span>
+        <h4>6. Testable</h4>
+        <p>Edge functions are pure functions with injected dependencies. Business logic is separated from transport. E2E tests cover the full tokenization pipeline. No test data in production code.</p>
+      </div>
+    </div>
+
+    <h3>3.1 Security First — Elaborated</h3>
+    <p>
+      Security is not a feature to be added later — it is a constraint on the initial design. The V2 security
+      model is defined by the following rules, enforced by code review and automated linting:
+    </p>
+    <ul>
+      <li><strong>No <code>wallet_secret</code> column exists anywhere</strong> in the schema. If a PR introduces such a column, CI fails.</li>
+      <li><strong>Signing keys never transit application code</strong>. Testnet uses a single platform faucet wallet. Mainnet uses Xaman QR (user holds their own keys). Future HSM support uses vault key IDs only.</li>
+      <li><strong>JWT claims are verified on every edge function</strong>, not just via Supabase gateway. The pattern is: verify JWT → extract <code>user_id</code> and <code>tenant_id</code> → validate against DB → proceed.</li>
+      <li><strong>Service role key is never exposed to the browser</strong>. The client-side Supabase client uses the anon key only. Service role is used exclusively in Deno edge functions.</li>
+      <li><strong>All destructive XRPL operations require an additional confirmation step</strong> (e.g., clawback, freeze) logged to the immutable audit table before execution.</li>
+    </ul>
+
+    <h3>3.2 Multi-Tenant by Default — Elaborated</h3>
+    <p>
+      Tenant isolation is implemented at three independent layers, so that a failure at one layer does not
+      compromise isolation:
+    </p>
+
+    <pre class="ascii-diagram">
+Layer 1: DATABASE (PostgreSQL RLS)
+  ├── Every table has tenant_id NOT NULL REFERENCES tenants(id)
+  ├── RLS enabled on every user-facing table
+  └── Policy: USING (tenant_id = (SELECT tenant_id FROM profiles WHERE id = auth.uid()))
+
+Layer 2: API (Edge Functions)
+  ├── JWT token contains user_id
+  ├── Edge function reads tenant_id from profiles table using service role
+  ├── All queries are scoped to that tenant_id
+  └── Cross-tenant queries are rejected with 403
+
+Layer 3: FRONTEND (Next.js Middleware)
+  ├── Subdomain resolved at middleware: tenant1.platform.com → tenant_slug = "tenant1"
+  ├── Tenant config fetched server-side and injected as React context
+  └── UI components branded per tenant; no cross-tenant navigation possible
+    </pre>
+
+    <h3>3.3 Type-Safe Blockchain Layer — Elaborated</h3>
+    <p>
+      The XRPL type library is a shared package imported by both edge functions and the frontend. It defines
+      explicit interfaces for every XRPL JSON-RPC request and response shape used by the platform:
+    </p>
+    <pre>
+// xrpl-types.ts — shared library (edge functions + frontend)
+export interface XRPLAccountInfo {
+  result: {
+    account_data: {
+      Account: string;
+      Balance: string;           // drops as string
+      Sequence: number;
+      OwnerCount: number;
+      Flags: number;
+    };
+    validated: boolean;
+  };
+}
+
+export interface XRPLMPTIssuance {
+  mpt_issuance_id: string;
+  Issuer: string;
+  MaximumAmount?: string;
+  OutstandingAmount: string;
+  TransferFee?: number;
+  Flags: number;
+  MPTokenMetadata?: string;    // hex-encoded XLS-89
+}
+
+export interface XRPLServerInfo {
+  result: {
+    info: {
+      validated_ledger: {
+        reserve_base_xrp: number;
+        reserve_inc_xrp: number;
+        seq: number;
+      };
+    };
+  };
+}
+
+// Currency helpers — always use these, never inline decode
+export function decodeCurrency(hex: string): string { ... }
+export function formatAmount(drops: string): string { ... }
+export function explorerUrl(txHash: string, network: 'mainnet' | 'testnet'): string { ... }
+    </pre>
+
+    <h3>3.4 Principle Enforcement in CI</h3>
+    <p>
+      Principles are enforced automatically in the CI pipeline, not just by convention:
+    </p>
+    <table>
+      <thead>
+        <tr><th>Check</th><th>Tool</th><th>Blocks Merge?</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>No <code>any</code> in <code>xrpl-*</code> or <code>supabase/functions/</code></td><td>ESLint <code>@typescript-eslint/no-explicit-any</code></td><td>Yes</td></tr>
+        <tr><td>Supabase types regenerated after migrations</td><td>Custom CI step: <code>supabase gen types</code> diff check</td><td>Yes</td></tr>
+        <tr><td>No <code>wallet_secret</code> column in migrations</td><td>Grep migration files</td><td>Yes</td></tr>
+        <tr><td>No direct <code>createClient()</code> in <code>src/</code></td><td>ESLint import rule</td><td>Yes</td></tr>
+        <tr><td>Edge function unit tests pass</td><td>Deno test</td><td>Yes</td></tr>
+        <tr><td>E2E tests pass</td><td>Playwright</td><td>Yes (staging only)</td></tr>
+        <tr><td>No test data in production components</td><td>ESLint: ban RANDOM_PROPERTIES etc.</td><td>Yes</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  SECTION 4: MULTI-TENANCY ARCHITECTURE                        -->
+<!-- ============================================================ -->
+<div class="page page-break">
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <h2 class="section-title">Multi-Tenancy Architecture</h2>
+    </div>
+
+    <h3>4.1 The Tenant Model</h3>
+    <p>
+      The platform operates on a three-tier hierarchy. The <strong>platform operator</strong> (us) owns the
+      infrastructure and charges SaaS fees. <strong>Tenants</strong> are companies — real estate operators,
+      investment fund managers, or property developers — who license the platform to run their own branded
+      investor portals. <strong>End users</strong> are retail or accredited investors who interact exclusively
+      through the tenant's portal and are never aware of the underlying SaaS platform.
+    </p>
+
+    <pre class="ascii-diagram">
+┌─────────────────────────────────────────────────────────────────┐
+│                     PLATFORM OPERATOR (YOU)                      │
+│  Platform Admin Dashboard — manages tenants, billing, support   │
+│  Supabase project: bmxcjxtjujhwreduwtvz                         │
+└─────────────────┬───────────────────────────────────────────────┘
+                  │  Provisions → Configures → Charges
+        ┌─────────┼──────────┬──────────────────────┐
+        │         │          │                       │
+┌───────▼──┐ ┌───▼──────┐ ┌─▼────────┐       ┌─────▼─────┐
+│ Tenant A │ │ Tenant B │ │ Tenant C │  ...  │ Tenant N  │
+│ Realty   │ │ PropFund │ │ InvestRE │       │           │
+│ Co. Ltd  │ │ Capital  │ │ Advisors │       │           │
+└──────┬───┘ └────┬─────┘ └────┬─────┘       └─────┬─────┘
+       │          │             │                   │
+       │    White-labeled portals (subdomains)      │
+   realty.     propfund.    investre.           custom.
+  platform.   platform.   platform.com          domain.com
+    com           com
+       │          │             │                   │
+   ┌───▼──┐   ┌───▼──┐     ┌───▼──┐           ┌───▼──┐
+   │Users │   │Users │     │Users │           │Users │
+   │(100s)│   │(500s)│     │(50s) │           │(...)  │
+   └──────┘   └──────┘     └──────┘           └──────┘
+    </pre>
+
+    <h3>4.2 Use Cases for Tenants</h3>
+    <table>
+      <thead>
+        <tr><th>Tenant Type</th><th>Example</th><th>Primary Use Case</th><th>Token Type</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Residential Developer</strong></td>
+          <td>A builder selling fractional units off-plan</td>
+          <td>Fractional pre-sale of apartment units; dividends from rental income</td>
+          <td>MPT (XLS-33)</td>
+        </tr>
+        <tr>
+          <td><strong>Commercial Fund</strong></td>
+          <td>A REIT tokenizing office buildings</td>
+          <td>Accredited investor pool; KYC required; transfer restrictions</td>
+          <td>MPT with RequireAuth + CanClawback</td>
+        </tr>
+        <tr>
+          <td><strong>Deed Registry</strong></td>
+          <td>Government-backed land registry pilot</td>
+          <td>One token = one unique property deed; non-fungible</td>
+          <td>NFT (XLS-20)</td>
+        </tr>
+        <tr>
+          <td><strong>Micro-Investment App</strong></td>
+          <td>Retail platform for small property stakes</td>
+          <td>Small fractional stakes from $10; broad retail audience</td>
+          <td>MPT (high supply, small denomination)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>4.3 Database Isolation Strategy</h3>
+    <p>
+      V2 uses <strong>shared schema, row-level isolation</strong>: all tenants share the same PostgreSQL
+      database and schema, but every row in every user-facing table contains a <code>tenant_id</code> foreign
+      key, and RLS policies enforce that users can only see rows belonging to their own tenant.
+    </p>
+
+    <div class="callout info no-break">
+      <span class="callout-icon">&#8505;</span>
+      <div class="callout-body">
+        <span class="callout-title">Why Shared Schema (not separate databases)?</span>
+        <p>Separate databases per tenant provide the strongest isolation but cost $0–$25/month per tenant at Supabase's pricing, making small tenants economically unviable. Shared schema with RLS is the industry-standard approach for B2B SaaS on PostgreSQL. The tradeoff: a misconfigured RLS policy could expose cross-tenant data (mitigated by automated policy testing in CI).</p>
+      </div>
+    </div>
+
+    <p>The canonical RLS pattern used across all user-facing tables:</p>
+    <div class="rls-box no-break">
+      <span class="rls-label">RLS Policy Pattern — All User-Facing Tables</span>
+      <pre>
+-- Enable RLS
+ALTER TABLE &lt;table&gt; ENABLE ROW LEVEL SECURITY;
+
+-- SELECT: user can only see rows in their tenant
+CREATE POLICY "tenant_select" ON &lt;table&gt;
+  FOR SELECT USING (
+    tenant_id = (
+      SELECT tenant_id FROM profiles
+      WHERE id = auth.uid()
+    )
+  );
+
+-- INSERT: user can only insert into their tenant
+CREATE POLICY "tenant_insert" ON &lt;table&gt;
+  FOR INSERT WITH CHECK (
+    tenant_id = (
+      SELECT tenant_id FROM profiles
+      WHERE id = auth.uid()
+    )
+  );
+
+-- Platform super-admin bypasses all RLS (service role)
+-- Never expose service role key to browser
+      </pre>
+    </div>
+
+    <h3>4.4 Tenant Onboarding Flow</h3>
+    <pre class="ascii-diagram">
+Platform Admin                                        System
+     │                                                  │
+     ├─── 1. Create tenant record ─────────────────────►│
+     │        (tenants table: slug, name, status=setup) │
+     │                                                  │
+     ├─── 2. Configure tenant ─────────────────────────►│
+     │        (tenant_configs: KYC provider,            │
+     │         branding, commission_bps, token types)   │
+     │                                                  │
+     ├─── 3. Invite tenant admin ──────────────────────►│
+     │        (tenant_members: role=tenant_admin)       │
+     │        (sends magic link email via Supabase Auth) │
+     │                                                  │
+     ◄─── 4. Tenant admin accepts invite ───────────────┤
+     │        (sets up branding, uploads logo)          │
+     │                                                  │
+     ├─── 5. Activate tenant ──────────────────────────►│
+     │        (tenants.status = active)                 │
+     │        (DNS CNAME provisioned for subdomain)     │
+     │                                                  │
+     ◄─── 6. Tenant portal live ─────────────────────── ┤
+    </pre>
+
+    <h3>4.5 Tenant Configuration</h3>
+    <p>
+      Each tenant's behavior is controlled by a <code>tenant_configs</code> record. This record is loaded
+      server-side at request time and injected into the React component tree via a server component.
+    </p>
+    <table>
+      <thead>
+        <tr><th>Config Key</th><th>Type</th><th>Description</th><th>Example</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>branding</code></td><td>JSON</td><td>Logo URL, primary color, company name, font</td><td><code>{"logo": "...", "color": "#2d3bac"}</code></td></tr>
+        <tr><td><code>kyc_provider</code></td><td>enum</td><td>Which KYC provider to use for this tenant</td><td><code>persona | onfido | none</code></td></tr>
+        <tr><td><code>kyc_required</code></td><td>boolean</td><td>Must users complete KYC before holding tokens?</td><td><code>true</code></td></tr>
+        <tr><td><code>allowed_token_types</code></td><td>string[]</td><td>Which token standards this tenant can issue</td><td><code>["MPT", "NFT"]</code></td></tr>
+        <tr><td><code>commission_bps</code></td><td>integer</td><td>Platform commission on token sales (basis points)</td><td><code>150</code> (= 1.5%)</td></tr>
+        <tr><td><code>transfer_fee_bps</code></td><td>integer</td><td>Default secondary market transfer fee</td><td><code>100</code> (= 1.0%)</td></tr>
+        <tr><td><code>inactivity_timeout_min</code></td><td>integer</td><td>Wallet inactivity auto-disconnect timer</td><td><code>30</code></td></tr>
+        <tr><td><code>require_accredited</code></td><td>boolean</td><td>Restrict token purchase to accredited investors only</td><td><code>false</code></td></tr>
+        <tr><td><code>supported_networks</code></td><td>string[]</td><td>XRPL networks this tenant can operate on</td><td><code>["mainnet"]</code></td></tr>
+        <tr><td><code>custom_domain</code></td><td>string?</td><td>Custom domain instead of subdomain (enterprise)</td><td><code>tokens.myrealty.com</code></td></tr>
+      </tbody>
+    </table>
+
+    <h3>4.6 Subdomain Routing</h3>
+    <p>
+      Tenant portals are served on subdomains: <code>tenant-slug.platform.com</code>. The Next.js middleware
+      layer resolves the subdomain to a tenant slug, fetches the tenant configuration, and injects it into
+      the server component tree before the first render. This means tenant branding, KYC settings, and
+      feature flags are applied before any JavaScript executes in the browser.
+    </p>
+    <pre>
+// middleware.ts (Next.js)
+export function middleware(req: NextRequest) {
+  const host = req.headers.get('host') ?? '';
+  const slug = extractTenantSlug(host); // "acme" from "acme.platform.com"
+
+  if (!slug) return NextResponse.redirect('/not-found');
+
+  const res = NextResponse.next();
+  res.headers.set('x-tenant-slug', slug); // passed to server components
+  return res;
+}
+
+// layout.tsx (server component)
+const tenantSlug = headers().get('x-tenant-slug');
+const tenantConfig = await fetchTenantConfig(tenantSlug); // server-side DB call
+// TenantConfigProvider injects config into React context
+    </pre>
+
+    <h3>4.7 Role Hierarchy</h3>
+    <table>
+      <thead>
+        <tr><th>Role</th><th>Scope</th><th>Capabilities</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>platform_admin</code></td><td>Global</td><td>Create/suspend tenants, view all data, billing management, platform configuration</td></tr>
+        <tr><td><code>tenant_admin</code></td><td>Single tenant</td><td>Manage tenant users, configure branding/KYC, approve properties, view tenant analytics</td></tr>
+        <tr><td><code>property_reviewer</code></td><td>Single tenant</td><td>Review and approve/reject property submissions within their tenant</td></tr>
+        <tr><td><code>investor</code></td><td>Single tenant</td><td>Browse listings, complete KYC, purchase/transfer tokens, view portfolio</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  SECTION 5: TOKENIZATION ENGINE DESIGN                        -->
+<!-- ============================================================ -->
+<div class="page page-break">
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">05</span>
+      <h2 class="section-title">Tokenization Engine Design</h2>
+    </div>
+
+    <h3>5.1 The Tokenization Pipeline</h3>
+    <p>
+      A property moves through a defined pipeline from initial submission to active secondary market trading.
+      Each stage involves specific actors (property owner, reviewer, compliance officer, issuer wallet) and
+      produces a state transition in both the database and (where applicable) the XRPL ledger.
+    </p>
+
+    <pre class="ascii-diagram">
+PROPERTY OWNER        TENANT ADMIN         PLATFORM / XRPL
+       │                    │                      │
+       ├── Submit Property ─►│                      │
+       │   (address, docs,   │                      │
+       │    valuation req.)  │                      │
+       │                     │                      │
+       │                     ├── KYC/Legal Check    │
+       │                     │   (documents review) │
+       │                     │                      │
+       │◄── Request Revision─┤                      │
+       │    (if needed)       │                      │
+       │                     │                      │
+       ├── Resubmit ─────────►│                      │
+       │                     │                      │
+       │                     ├── Valuation Locked   │
+       │                     │   (IPFS docs upload) │
+       │                     │                      │
+       │                     ├── APPROVE ───────────►│
+       │                     │                      ├── MPTokenIssuanceCreate
+       │                     │                      │   (issuer wallet signs via
+       │                     │                      │    Xaman QR)
+       │                     │                      │
+       │                     │◄─────────────────────┤ MPT Issuance ID returned
+       │                     │                      │
+       │◄────────────────────┤                      │
+       │   Token ACTIVE       │                      │
+       │   Investors can now  │                      │
+       │   purchase + hold    │                      │
+       │                      │                      │
+       │                      ├── Secondary Market   │
+       │                      │   order book opens   │
+       │                      │                      │
+    ◄──┤  Dividends / Clawback possible at any time  │
+    </pre>
+
+    <h3>5.2 Token Types Supported</h3>
+
+    <table class="token-matrix">
+      <thead>
+        <tr>
+          <th>Feature</th>
+          <th>MPT (XLS-33/89)</th>
+          <th>NFT (XLS-20)</th>
+          <th>IOU Trust Line</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Fractional ownership</td><td class="yes">Yes</td><td class="no">No (1-of-1)</td><td class="yes">Yes</td></tr>
+        <tr><td>Require KYC / auth</td><td class="yes">Yes (RequireAuth flag)</td><td class="partial">Partial (transfer hook)</td><td class="partial">Partial (RequireAuth)</td></tr>
+        <tr><td>Clawback</td><td class="yes">Yes (CanClawback flag)</td><td class="yes">Yes (Burnable)</td><td class="yes">Yes (noRipple off)</td></tr>
+        <tr><td>Transfer fee</td><td class="yes">Yes (TransferFee field)</td><td class="yes">Yes (TransferFee %)</td><td class="no">No (manual)</td></tr>
+        <tr><td>Lock/freeze</td><td class="yes">Yes (CanLock flag)</td><td class="no">No</td><td class="partial">Partial (DefaultRipple)</td></tr>
+        <tr><td>Rich metadata</td><td class="yes">Yes (XLS-89, 1024 bytes)</td><td class="yes">Yes (URI field)</td><td class="no">No</td></tr>
+        <tr><td>Primary use in V2</td><td class="yes">Primary (RWA fractions)</td><td class="partial">Deeds only</td><td class="no">Legacy / migration</td></tr>
+        <tr><td>XRPL amendment</td><td>XLS-33d</td><td>XLS-20d</td><td>Core (no amendment)</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout best-practice no-break">
+      <span class="callout-icon">&#10003;</span>
+      <div class="callout-body">
+        <span class="callout-title">Default to MPT for All New Tokenizations</span>
+        <p>MPT (Multi-Purpose Token, XLS-33) is the preferred token standard for all new V2 tokenizations.
+        It natively supports the compliance controls required for regulated real estate investment
+        (RequireAuth, CanClawback, CanLock, TransferFee). NFT is reserved for unique property certificates
+        (deeds) where non-fungibility is required. IOU trust lines are supported only for
+        backward compatibility with V1 holdings and should not be used for new issuances.</p>
+      </div>
+    </div>
+
+    <h3>5.3 Token Lifecycle States</h3>
+    <p>
+      Every token issuance moves through a defined set of states. State transitions are recorded in
+      <code>token_issuances.status</code> and audit-logged to <code>audit_log</code>.
+    </p>
+
+    <div style="margin: 6mm 0;">
+      <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 8px;">
+        <span class="badge draft">draft</span>
+        <span style="color: var(--gray-400);">&#8594;</span>
+        <span class="badge review">pending_review</span>
+        <span style="color: var(--gray-400);">&#8594;</span>
+        <span class="badge approved">approved</span>
+        <span style="color: var(--gray-400);">&#8594;</span>
+        <span class="badge approved" style="background:#dfe8ff;color:#2d3bac">minting</span>
+        <span style="color: var(--gray-400);">&#8594;</span>
+        <span class="badge active">active</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 6px;">
+        <span style="color: var(--gray-400); padding-left: 140px;">&#8594;</span>
+        <span class="badge frozen">frozen</span>
+        <span style="color: var(--gray-400);">&#8594;</span>
+        <span class="badge redeemed">redeemed</span>
+      </div>
+    </div>
+
+    <table>
+      <thead>
+        <tr><th>State</th><th>Description</th><th>Who Sets It</th><th>XRPL Action</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><span class="badge draft">draft</span></td><td>Property owner has submitted; not yet reviewed</td><td>System on submit</td><td>None</td></tr>
+        <tr><td><span class="badge review">pending_review</span></td><td>Under review by tenant admin or reviewer</td><td>Reviewer on claim</td><td>None</td></tr>
+        <tr><td><span class="badge approved">approved</span></td><td>Legal + valuation approved; ready to mint</td><td>Reviewer on approve</td><td>None</td></tr>
+        <tr><td><span class="badge approved" style="background:#dfe8ff;color:#2d3bac">minting</span></td><td>MPTokenIssuanceCreate tx submitted to XRPL</td><td>System on mint trigger</td><td>MPTokenIssuanceCreate</td></tr>
+        <tr><td><span class="badge active">active</span></td><td>On-chain issuance confirmed; investors can buy</td><td>System on tx confirmation</td><td>Issuance ID recorded</td></tr>
+        <tr><td><span class="badge frozen">frozen</span></td><td>Trading suspended (compliance / legal hold)</td><td>Tenant admin or platform</td><td>MPTokenIssuanceSet (lock)</td></tr>
+        <tr><td><span class="badge redeemed">redeemed</span></td><td>All tokens bought back; issuance closed</td><td>Tenant admin on redemption</td><td>MPTokenIssuanceDestroy</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.4 Token Economics</h3>
+    <p>
+      When a tenant creates a token issuance, they configure the following economic parameters. These are
+      encoded both in the on-chain MPT issuance (where supported by the protocol) and in the
+      <code>token_issuances</code> DB record.
+    </p>
+    <table>
+      <thead>
+        <tr><th>Parameter</th><th>On-Chain Field</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Total Supply</td><td><code>MaximumAmount</code></td><td>Maximum number of tokens that can exist. Typically 1,000,000 for a $1M property at $1/token.</td></tr>
+        <tr><td>Transfer Fee</td><td><code>TransferFee</code></td><td>Basis points charged on every secondary transfer (0–50,000 bps = 0–50%). Collected by issuer automatically by XRPL protocol.</td></tr>
+        <tr><td>Fractional Split</td><td>Derived from supply</td><td>Each token represents (property_valuation / total_supply) of the property. Stored in <code>token_issuances.price_per_token_usd</code>.</td></tr>
+        <tr><td>Dividend Policy</td><td>Off-chain</td><td>Rental income distribution schedule stored in <code>tenant_configs.dividend_policy_json</code>. Paid in XRP or RLUSD via batch payment.</td></tr>
+        <tr><td>Minimum Hold Period</td><td>Off-chain (compliance)</td><td>Period after purchase during which transfers are blocked. Enforced via RequireAuth — issuer refuses to authorize transfers before hold period expires.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>5.5 Token Metadata Standard (XLS-89)</h3>
+    <p>
+      MPT metadata is encoded using the XLS-89 compressed standard. The metadata field is limited to 1,024
+      bytes on-chain. For larger documents (legal deeds, valuation reports, imagery), V2 uses an
+      <strong>on-chain + off-chain hybrid</strong>: the on-chain metadata contains only a compact summary
+      and an IPFS content-addressable hash pointing to the full document set.
+    </p>
+    <pre>
+// XLS-89 MPT metadata structure (encoded as CBOR, max 1024 bytes)
+{
+  "n": "123 Main St — Unit A",           // name (≤64 chars)
+  "d": "Fractional residential unit",    // description (≤128 chars)
+  "i": "ipfs://Qm...",                   // IPFS URI for full docs + images
+  "c": "USD",                            // denomination currency
+  "t": "real_estate",                    // asset class tag
+  "v": 250000,                           // valuation in cents (USD)
+  "s": "active",                         // issuance status
+  "loc": {                               // property location
+    "country": "US",
+    "state": "CA",
+    "zip": "90210"
+  }
+}
+
+// IPFS document bundle (pointed to by metadata.i):
+{
+  "title_deed": "ipfs://QmDeed...",
+  "valuation_report": "ipfs://QmVal...",
+  "legal_opinion": "ipfs://QmLegal...",
+  "images": ["ipfs://QmImg1...", "ipfs://QmImg2..."],
+  "inspection_report": "ipfs://QmInspect..."
+}
+    </pre>
+
+    <h3>5.6 Compliance Flags</h3>
+    <p>
+      MPT compliance behavior is controlled by flags set at issuance creation time. These flags are
+      <strong>immutable after the issuance is created</strong> — plan them carefully.
+    </p>
+    <table>
+      <thead>
+        <tr><th>Flag</th><th>Bit</th><th>Effect</th><th>Use When</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>RequireAuth</code></td><td>tfMPTRequireAuth</td><td>Holders must be explicitly authorized by issuer before they can receive or hold tokens</td><td>KYC required; accredited-only; any regulated offering</td></tr>
+        <tr><td><code>CanClawback</code></td><td>tfMPTCanClawback</td><td>Issuer can reclaim tokens from any holder at any time</td><td>Regulatory compliance; sanctions screening; AML freeze</td></tr>
+        <tr><td><code>CanLock</code></td><td>tfMPTCanLock</td><td>Issuer can lock individual holdings (prevent transfer without full clawback)</td><td>Legal hold; divorce proceedings; estate freeze</td></tr>
+        <tr><td><code>CanFreeze</code></td><td>tfMPTCanFreeze</td><td>Issuer can freeze the entire issuance (halt all transfers globally)</td><td>Market halt; platform maintenance; legal injunction</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout warning no-break">
+      <span class="callout-icon">&#9888;</span>
+      <div class="callout-body">
+        <span class="callout-title">Flags Are Set at Issuance Creation — Plan Ahead</span>
+        <p>MPT compliance flags cannot be changed after <code>MPTokenIssuanceCreate</code> is submitted.
+        If a tenant launches without <code>CanClawback</code> and later faces a regulatory request to
+        reclaim tokens from a sanctioned user, they have no on-chain recourse.
+        V2 default recommendation: set <code>RequireAuth</code> + <code>CanClawback</code> + <code>CanLock</code>
+        for all regulated real estate offerings. Only omit flags for fully public, unrestricted tokens
+        (rare in real estate context).</p>
+      </div>
+    </div>
+
+    <h3>5.7 Secondary Market</h3>
+    <p>
+      The secondary market is implemented as a simple order book stored in the <code>token_orders</code> table.
+      Orders are matched off-chain (by the platform); settlement is executed on-chain via MPToken transfer.
+      This design avoids the complexity and cost of on-chain AMM/DEX integration while preserving a full
+      audit trail.
+    </p>
+    <pre class="ascii-diagram">
+SELLER                  PLATFORM (Edge Fn)          BUYER
+  │                            │                       │
+  ├── Create sell order ───────►│                       │
+  │   (issuance_id, quantity,   │                       │
+  │    min_price)               │                       │
+  │                             ├── Store in            │
+  │                             │   token_orders        │
+  │                             │                       │◄── Create buy order
+  │                             │                       │    (issuance_id, qty,
+  │                             │                       │     max_price)
+  │                             │◄──────────────────────┤
+  │                             │
+  │                             ├── Match orders (price overlap)
+  │                             │
+  │                             ├── Build MPToken transfer tx
+  │                             │   (seller → buyer)
+  │                             │
+  │◄─── Sign via Xaman QR ──────┤
+  │                             │
+  ├── Signed tx returned ───────►│
+  │                             │
+  │                             ├── Submit to XRPL
+  │                             │
+  │                             ├── Update token_holdings
+  │                             ├── Update token_orders (filled)
+  │                             └── Record token_price_history
+    </pre>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  SECTION 6: DATABASE SCHEMA V2                                -->
+<!-- ============================================================ -->
+<div class="page page-break">
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <h2 class="section-title">Database Schema (V2)</h2>
+    </div>
+
+    <p>
+      The V2 database schema is designed around three principles: every user-facing table has
+      <code>tenant_id</code>, private key material never appears in any column, and audit-sensitive
+      operations write to append-only log tables. The schema is managed via ordered Supabase migrations.
+    </p>
+
+    <div class="callout info no-break">
+      <span class="callout-icon">&#8505;</span>
+      <div class="callout-body">
+        <span class="callout-title">Schema Notation</span>
+        <p>
+          <span class="mono" style="color: var(--gold);">PK</span> = Primary Key &nbsp;|&nbsp;
+          <span class="mono" style="color: var(--accent-light);">FK</span> = Foreign Key &nbsp;|&nbsp;
+          <span class="mono" style="color: var(--red);">NO</span> = This column intentionally does not exist (V1 anti-pattern removed)
+        </p>
+      </div>
+    </div>
+
+    <h3>6.1 Tenant Management Tables</h3>
+
+    <div class="schema-table-name">tenants</div>
+    <div class="schema-block no-break">
+      <table>
+        <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="pk">id</td><td>uuid</td><td>Primary key, gen_random_uuid()</td></tr>
+          <tr><td>slug</td><td>text</td><td>UNIQUE. URL-safe identifier used in subdomain routing (e.g. "acme-realty")</td></tr>
+          <tr><td>name</td><td>text</td><td>Display name of the tenant company</td></tr>
+          <tr><td>status</td><td>text</td><td>setup | active | suspended | archived</td></tr>
+          <tr><td>created_at</td><td>timestamptz</td><td>DEFAULT now()</td></tr>
+          <tr><td>updated_at</td><td>timestamptz</td><td>Updated via trigger</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="schema-table-name">tenant_configs</div>
+    <div class="schema-block no-break">
+      <table>
+        <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="pk">id</td><td>uuid</td><td>Primary key</td></tr>
+          <tr><td class="fk">tenant_id</td><td>uuid</td><td>FK → tenants(id), UNIQUE (one config per tenant)</td></tr>
+          <tr><td>branding</td><td>jsonb</td><td>{logo_url, primary_color, font, company_name, tagline}</td></tr>
+          <tr><td>kyc_provider</td><td>text</td><td>persona | onfido | none</td></tr>
+          <tr><td>kyc_required</td><td>boolean</td><td>DEFAULT true</td></tr>
+          <tr><td>allowed_token_types</td><td>text[]</td><td>DEFAULT ARRAY['MPT']</td></tr>
+          <tr><td>commission_bps</td><td>integer</td><td>Platform commission in basis points (0–10000)</td></tr>
+          <tr><td>transfer_fee_bps</td><td>integer</td><td>Default secondary market fee in bps</td></tr>
+          <tr><td>inactivity_timeout_min</td><td>integer</td><td>DEFAULT 30</td></tr>
+          <tr><td>supported_networks</td><td>text[]</td><td>DEFAULT ARRAY['mainnet']</td></tr>
+          <tr><td>custom_domain</td><td>text</td><td>NULLABLE. Custom domain for enterprise tenants</td></tr>
+          <tr><td>dividend_policy</td><td>jsonb</td><td>NULLABLE. Distribution schedule config</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="schema-table-name">tenant_members</div>
+    <div class="schema-block no-break">
+      <table>
+        <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="pk">id</td><td>uuid</td><td>Primary key</td></tr>
+          <tr><td class="fk">tenant_id</td><td>uuid</td><td>FK → tenants(id)</td></tr>
+          <tr><td class="fk">user_id</td><td>uuid</td><td>FK → auth.users(id). UNIQUE(tenant_id, user_id)</td></tr>
+          <tr><td>role</td><td>text</td><td>tenant_admin | property_reviewer | investor</td></tr>
+          <tr><td>invited_at</td><td>timestamptz</td><td>When invite was sent</td></tr>
+          <tr><td>joined_at</td><td>timestamptz</td><td>NULLABLE. When user accepted invite</td></tr>
+          <tr><td>status</td><td>text</td><td>pending | active | suspended</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>6.2 User and Wallet Tables</h3>
+
+    <div class="schema-table-name">profiles</div>
+    <div class="schema-block no-break">
+      <table>
+        <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="pk">id</td><td>uuid</td><td>= auth.users(id). Set by trigger on user creation.</td></tr>
+          <tr><td class="fk">tenant_id</td><td>uuid</td><td>FK → tenants(id). NOT NULL. Determines which tenant portal this user belongs to.</td></tr>
+          <tr><td>full_name</td><td>text</td><td>NULLABLE</td></tr>
+          <tr><td>email</td><td>text</td><td>Synced from auth.users on creation</td></tr>
+          <tr><td>avatar_url</td><td>text</td><td>NULLABLE</td></tr>
+          <tr><td>kyc_status</td><td>text</td><td>unverified | pending | verified | rejected | expired</td></tr>
+          <tr><td>kyc_provider_ref</td><td>text</td><td>NULLABLE. External ID in KYC provider system (e.g. Persona inquiry ID)</td></tr>
+          <tr><td>created_at</td><td>timestamptz</td><td>DEFAULT now()</td></tr>
+          <tr><td>updated_at</td><td>timestamptz</td><td>Updated via trigger</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="schema-table-name">user_wallets</div>
+    <div class="schema-block no-break">
+      <table>
+        <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="pk">id</td><td>uuid</td><td>Primary key</td></tr>
+          <tr><td class="fk">user_id</td><td>uuid</td><td>FK → auth.users(id)</td></tr>
+          <tr><td class="fk">tenant_id</td><td>uuid</td><td>FK → tenants(id)</td></tr>
+          <tr><td>wallet_address</td><td>text</td><td>XRPL r-address. UNIQUE per user. NOT NULL.</td></tr>
+          <tr><td>provider</td><td>text</td><td>xaman | ledger_hardware | manual</td></tr>
+          <tr><td>network</td><td>text</td><td>mainnet | testnet | devnet</td></tr>
+          <tr><td>label</td><td>text</td><td>User-defined friendly name</td></tr>
+          <tr><td>status</td><td>text</td><td>active | disconnected | revoked</td></tr>
+          <tr><td>connected_at</td><td>timestamptz</td><td>When wallet was first connected</td></tr>
+          <tr><td>last_used_at</td><td>timestamptz</td><td>Updated on each wallet action</td></tr>
+          <tr><td class="no-col">wallet_secret</td><td class="no-col">—</td><td class="no-col">DOES NOT EXIST in V2. V1 anti-pattern eliminated. See wallet_vault_refs.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="schema-table-name">wallet_vault_refs</div>
+    <div class="schema-block no-break">
+      <table>
+        <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="pk">id</td><td>uuid</td><td>Primary key</td></tr>
+          <tr><td class="fk">wallet_id</td><td>uuid</td><td>FK → user_wallets(id). UNIQUE.</td></tr>
+          <tr><td>vault_key_id</td><td>text</td><td>Opaque identifier in secrets vault (Supabase Vault or HSM). NOT the key itself.</td></tr>
+          <tr><td>vault_provider</td><td>text</td><td>supabase_vault | hashicorp | aws_kms</td></tr>
+          <tr><td>purpose</td><td>text</td><td>testnet_autosign | platform_issuer</td></tr>
+          <tr><td>created_at</td><td>timestamptz</td><td>DEFAULT now()</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="schema-table-name">wallet_audit_log</div>
+    <div class="schema-block no-break">
+      <table>
+        <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="pk">id</td><td>uuid</td><td>Primary key</td></tr>
+          <tr><td class="fk">tenant_id</td><td>uuid</td><td>FK → tenants(id)</td></tr>
+          <tr><td class="fk">user_id</td><td>uuid</td><td>FK → auth.users(id). NULLABLE (for system events)</td></tr>
+          <tr><td>wallet_address</td><td>text</td><td>XRPL r-address</td></tr>
+          <tr><td>event</td><td>text</td><td>connect | disconnect | sign_request | sign_success | sign_fail | inactivity_timeout | revoke</td></tr>
+          <tr><td>metadata</td><td>jsonb</td><td>NULLABLE. Event-specific data (tx hash, error message, IP, etc.)</td></tr>
+          <tr><td>created_at</td><td>timestamptz</td><td>DEFAULT now(). IMMUTABLE — no UPDATE or DELETE allowed on this table.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>6.3 Property Tables</h3>
+
+    <div class="schema-table-name">properties</div>
+    <div class="schema-block no-break">
+      <table>
+        <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="pk">id</td><td>uuid</td><td>Primary key</td></tr>
+          <tr><td class="fk">tenant_id</td><td>uuid</td><td>FK → tenants(id)</td></tr>
+          <tr><td class="fk">owner_id</td><td>uuid</td><td>FK → auth.users(id). The submitting user.</td></tr>
+          <tr><td>address_line1</td><td>text</td><td>Street address</td></tr>
+          <tr><td>city</td><td>text</td><td></td></tr>
+          <tr><td>state_province</td><td>text</td><td></td></tr>
+          <tr><td>country</td><td>text</td><td>ISO 3166-1 alpha-2</td></tr>
+          <tr><td>postal_code</td><td>text</td><td></td></tr>
+          <tr><td>property_type</td><td>text</td><td>residential | commercial | industrial | land | mixed_use</td></tr>
+          <tr><td>valuation_usd</td><td>bigint</td><td>Valuation in USD cents (to avoid floating point)</td></tr>
+          <tr><td>valuation_locked_at</td><td>timestamptz</td><td>NULLABLE. When valuation was approved and locked</td></tr>
+          <tr><td>status</td><td>text</td><td>draft | pending_review | approved | tokenized | archived</td></tr>
+          <tr><td>legal_docs_ipfs</td><td>text</td><td>NULLABLE. IPFS CID for the document bundle</td></tr>
+          <tr><td>description</td><td>text</td><td>NULLABLE. Property description</td></tr>
+          <tr><td>images</td><td>text[]</td><td>NULLABLE. Array of image URLs or IPFS CIDs</td></tr>
+          <tr><td>created_at</td><td>timestamptz</td><td>DEFAULT now()</td></tr>
+          <tr><td>updated_at</td><td>timestamptz</td><td>Updated via trigger</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="schema-table-name">property_reviews</div>
+    <div class="schema-block no-break">
+      <table>
+        <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="pk">id</td><td>uuid</td><td>Primary key</td></tr>
+          <tr><td class="fk">property_id</td><td>uuid</td><td>FK → properties(id)</td></tr>
+          <tr><td class="fk">reviewer_id</td><td>uuid</td><td>FK → auth.users(id)</td></tr>
+          <tr><td class="fk">tenant_id</td><td>uuid</td><td>FK → tenants(id)</td></tr>
+          <tr><td>status</td><td>text</td><td>in_review | approved | rejected | revision_requested</td></tr>
+          <tr><td>notes</td><td>text</td><td>NULLABLE. Reviewer notes to property owner</td></tr>
+          <tr><td>created_at</td><td>timestamptz</td><td>DEFAULT now()</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>6.4 Token Tables</h3>
+
+    <div class="schema-table-name">token_issuances</div>
+    <div class="schema-block no-break">
+      <table>
+        <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="pk">id</td><td>uuid</td><td>Primary key</td></tr>
+          <tr><td class="fk">property_id</td><td>uuid</td><td>FK → properties(id)</td></tr>
+          <tr><td class="fk">tenant_id</td><td>uuid</td><td>FK → tenants(id)</td></tr>
+          <tr><td>token_type</td><td>text</td><td>MPT | NFT | IOU</td></tr>
+          <tr><td>xrpl_issuance_id</td><td>text</td><td>NULLABLE. The on-chain MPT Issuance ID returned by XRPL after MPTokenIssuanceCreate</td></tr>
+          <tr><td>issuer_address</td><td>text</td><td>XRPL r-address of the issuing wallet</td></tr>
+          <tr><td>total_supply</td><td>bigint</td><td>Maximum token supply (MaximumAmount)</td></tr>
+          <tr><td>outstanding_supply</td><td>bigint</td><td>Current amount in circulation (fetched from XRPL)</td></tr>
+          <tr><td>price_per_token_usd</td><td>integer</td><td>USD cents per token at issuance</td></tr>
+          <tr><td>transfer_fee_bps</td><td>integer</td><td>Transfer fee in basis points (encoded in MPT flags)</td></tr>
+          <tr><td>flags</td><td>integer</td><td>MPT flags bitfield (RequireAuth, CanClawback, CanLock, etc.)</td></tr>
+          <tr><td>metadata_json</td><td>jsonb</td><td>XLS-89 metadata structure (pre-encoding)</td></tr>
+          <tr><td>status</td><td>text</td><td>draft | pending_review | approved | minting | active | frozen | redeemed</td></tr>
+          <tr><td>minted_at</td><td>timestamptz</td><td>NULLABLE. When on-chain issuance was confirmed</td></tr>
+          <tr><td>created_at</td><td>timestamptz</td><td>DEFAULT now()</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="schema-table-name">token_holdings</div>
+    <div class="schema-block no-break">
+      <table>
+        <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="pk">id</td><td>uuid</td><td>Primary key</td></tr>
+          <tr><td class="fk">issuance_id</td><td>uuid</td><td>FK → token_issuances(id)</td></tr>
+          <tr><td class="fk">tenant_id</td><td>uuid</td><td>FK → tenants(id)</td></tr>
+          <tr><td>wallet_address</td><td>text</td><td>XRPL r-address of the holder</td></tr>
+          <tr><td>amount</td><td>bigint</td><td>Number of tokens held. Synced from XRPL account_objects.</td></tr>
+          <tr><td>authorized_at</td><td>timestamptz</td><td>NULLABLE. When issuer called MPTokenAuthorize for this holder</td></tr>
+          <tr><td>locked</td><td>boolean</td><td>DEFAULT false. Set when CanLock is exercised on this holding.</td></tr>
+          <tr><td>acquired_at</td><td>timestamptz</td><td>DEFAULT now()</td></tr>
+          <tr><td>updated_at</td><td>timestamptz</td><td>Updated on each balance change</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="schema-table-name">token_orders</div>
+    <div class="schema-block no-break">
+      <table>
+        <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="pk">id</td><td>uuid</td><td>Primary key</td></tr>
+          <tr><td class="fk">issuance_id</td><td>uuid</td><td>FK → token_issuances(id)</td></tr>
+          <tr><td class="fk">tenant_id</td><td>uuid</td><td>FK → tenants(id)</td></tr>
+          <tr><td class="fk">user_id</td><td>uuid</td><td>FK → auth.users(id)</td></tr>
+          <tr><td>wallet_address</td><td>text</td><td>XRPL r-address of the order placer</td></tr>
+          <tr><td>side</td><td>text</td><td>buy | sell</td></tr>
+          <tr><td>quantity</td><td>bigint</td><td>Number of tokens ordered</td></tr>
+          <tr><td>price_usd</td><td>integer</td><td>Limit price in USD cents per token</td></tr>
+          <tr><td>filled_quantity</td><td>bigint</td><td>DEFAULT 0. Updated as order fills.</td></tr>
+          <tr><td>status</td><td>text</td><td>open | partial | filled | cancelled | expired</td></tr>
+          <tr><td>expires_at</td><td>timestamptz</td><td>NULLABLE. GTC orders have null expiry.</td></tr>
+          <tr><td>created_at</td><td>timestamptz</td><td>DEFAULT now()</td></tr>
+          <tr><td>updated_at</td><td>timestamptz</td><td>Updated via trigger</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="schema-table-name">token_transactions</div>
+    <div class="schema-block no-break">
+      <table>
+        <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="pk">id</td><td>uuid</td><td>Primary key</td></tr>
+          <tr><td class="fk">issuance_id</td><td>uuid</td><td>FK → token_issuances(id)</td></tr>
+          <tr><td class="fk">tenant_id</td><td>uuid</td><td>FK → tenants(id)</td></tr>
+          <tr><td>from_address</td><td>text</td><td>XRPL sender r-address</td></tr>
+          <tr><td>to_address</td><td>text</td><td>XRPL recipient r-address</td></tr>
+          <tr><td>amount</td><td>bigint</td><td>Number of tokens transferred</td></tr>
+          <tr><td>tx_hash</td><td>text</td><td>XRPL transaction hash (32 bytes hex)</td></tr>
+          <tr><td>tx_type</td><td>text</td><td>MPTokenIssuanceCreate | MPTokenMint | MPTokenTransfer | MPTokenClawback | MPTokenBurn</td></tr>
+          <tr><td>ledger_index</td><td>bigint</td><td>XRPL ledger sequence when confirmed</td></tr>
+          <tr><td>created_at</td><td>timestamptz</td><td>DEFAULT now(). Append-only — no updates.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="schema-table-name">token_price_history</div>
+    <div class="schema-block no-break">
+      <table>
+        <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="pk">id</td><td>uuid</td><td>Primary key</td></tr>
+          <tr><td class="fk">issuance_id</td><td>uuid</td><td>FK → token_issuances(id)</td></tr>
+          <tr><td class="fk">tenant_id</td><td>uuid</td><td>FK → tenants(id)</td></tr>
+          <tr><td>price_usd</td><td>integer</td><td>USD cents per token at this recording</td></tr>
+          <tr><td>volume</td><td>bigint</td><td>Number of tokens traded in this interval</td></tr>
+          <tr><td>interval</td><td>text</td><td>1h | 4h | 1d</td></tr>
+          <tr><td>recorded_at</td><td>timestamptz</td><td>Start of the interval. Append-only.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>6.5 KYC and Compliance Tables</h3>
+
+    <div class="schema-table-name">kyc_verifications</div>
+    <div class="schema-block no-break">
+      <table>
+        <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="pk">id</td><td>uuid</td><td>Primary key</td></tr>
+          <tr><td class="fk">user_id</td><td>uuid</td><td>FK → auth.users(id)</td></tr>
+          <tr><td class="fk">tenant_id</td><td>uuid</td><td>FK → tenants(id)</td></tr>
+          <tr><td>provider</td><td>text</td><td>persona | onfido | manual</td></tr>
+          <tr><td>provider_inquiry_id</td><td>text</td><td>External inquiry/case ID in KYC provider system</td></tr>
+          <tr><td>status</td><td>text</td><td>pending | approved | declined | expired | withdrawn</td></tr>
+          <tr><td>verified_at</td><td>timestamptz</td><td>NULLABLE. When KYC was approved.</td></tr>
+          <tr><td>expires_at</td><td>timestamptz</td><td>NULLABLE. When KYC verification expires (re-verification required).</td></tr>
+          <tr><td>data_ref</td><td>text</td><td>NULLABLE. Reference to encrypted PII storage (never raw PII in DB).</td></tr>
+          <tr><td>created_at</td><td>timestamptz</td><td>DEFAULT now()</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="schema-table-name">audit_log</div>
+    <div class="schema-block no-break">
+      <table>
+        <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr><td class="pk">id</td><td>uuid</td><td>Primary key</td></tr>
+          <tr><td class="fk">tenant_id</td><td>uuid</td><td>FK → tenants(id). NULLABLE for platform-level events.</td></tr>
+          <tr><td class="fk">actor_id</td><td>uuid</td><td>FK → auth.users(id). Who performed the action.</td></tr>
+          <tr><td>action</td><td>text</td><td>e.g. token.freeze, kyc.approve, property.approve, wallet.clawback</td></tr>
+          <tr><td>resource_type</td><td>text</td><td>token_issuance | property | kyc | wallet | tenant</td></tr>
+          <tr><td>resource_id</td><td>uuid</td><td>ID of the affected resource</td></tr>
+          <tr><td>metadata</td><td>jsonb</td><td>Action-specific data (before/after state, tx hash, reason)</td></tr>
+          <tr><td>ip_address</td><td>inet</td><td>NULLABLE. Request IP for compliance</td></tr>
+          <tr><td>created_at</td><td>timestamptz</td><td>DEFAULT now(). IMMUTABLE — no UPDATE or DELETE policy.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>6.6 Key Indexes</h3>
+    <pre>
+-- Tenant isolation queries (most common query pattern)
+CREATE INDEX idx_profiles_tenant_id ON profiles(tenant_id);
+CREATE INDEX idx_user_wallets_tenant_user ON user_wallets(tenant_id, user_id);
+CREATE INDEX idx_token_issuances_tenant_property ON token_issuances(tenant_id, property_id);
+CREATE INDEX idx_token_holdings_issuance ON token_holdings(issuance_id);
+CREATE INDEX idx_token_holdings_wallet ON token_holdings(wallet_address);
+CREATE INDEX idx_token_orders_issuance_status ON token_orders(issuance_id, status);
+
+-- Audit log queries (time-range scans)
+CREATE INDEX idx_audit_log_tenant_created ON audit_log(tenant_id, created_at DESC);
+CREATE INDEX idx_wallet_audit_log_wallet ON wallet_audit_log(wallet_address, created_at DESC);
+
+-- XRPL issuance lookup (registry)
+CREATE INDEX idx_token_issuances_xrpl_id ON token_issuances(xrpl_issuance_id)
+  WHERE xrpl_issuance_id IS NOT NULL;
+    </pre>
+
+    <h3>6.7 Append-Only Table Enforcement</h3>
+    <p>
+      The <code>wallet_audit_log</code>, <code>audit_log</code>, <code>token_transactions</code>, and
+      <code>token_price_history</code> tables are append-only by design. This is enforced at the
+      PostgreSQL level via trigger functions:
+    </p>
+    <pre>
+-- Prevent UPDATE and DELETE on audit tables
+CREATE OR REPLACE FUNCTION prevent_audit_modification()
+RETURNS trigger AS $$
+BEGIN
+  RAISE EXCEPTION 'audit tables are immutable: % on % is not allowed',
+    TG_OP, TG_TABLE_NAME;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER enforce_audit_immutability
+BEFORE UPDATE OR DELETE ON audit_log
+FOR EACH ROW EXECUTE FUNCTION prevent_audit_modification();
+
+-- Same trigger applied to wallet_audit_log, token_transactions, token_price_history
+    </pre>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  SECTION 7: API / BACKEND DESIGN — EDGE FUNCTIONS V2          -->
+<!-- ============================================================ -->
+<div class="page page-break">
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">07</span>
+      <h2 class="section-title">API / Backend Design — Edge Functions V2</h2>
+    </div>
+
+    <p>
+      All server-side business logic runs in <strong>Deno edge functions</strong> deployed on Supabase.
+      Edge functions are the only code that can communicate with XRPL nodes, access the service role key,
+      or reference vault key IDs. The browser never calls XRPL directly.
+    </p>
+
+    <h3>7.1 Universal Edge Function Pattern</h3>
+    <p>
+      Every edge function in V2 follows the same structure. Deviation from this pattern is a code review
+      failure criterion.
+    </p>
+    <pre>
+// Universal V2 edge function template
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { corsHeaders } from "../_shared/cors.ts";
+import { log } from "../_shared/logger.ts";
+import { checkRateLimit } from "../_shared/rate-limit.ts";
+import { extractTenantId } from "../_shared/auth.ts";
+
+Deno.serve(async (req: Request) => {
+  // 1. CORS preflight
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  const requestId = crypto.randomUUID();
+  const startTime = Date.now();
+
+  try {
+    // 2. Authenticate: verify JWT, extract user
+    const authHeader = req.headers.get("Authorization");
+    if (!authHeader) return new Response("Unauthorized", { status: 401 });
+
+    const supabaseUser = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_ANON_KEY")!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+    const { data: { user }, error: authError } = await supabaseUser.auth.getUser();
+    if (authError || !user) return new Response("Unauthorized", { status: 401 });
+
+    // 3. Extract tenant_id from user profile (service role)
+    const supabaseAdmin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+    const tenantId = await extractTenantId(supabaseAdmin, user.id);
+    if (!tenantId) return new Response("Tenant not found", { status: 403 });
+
+    // 4. Rate limit check
+    const limited = await checkRateLimit(supabaseAdmin, user.id, "function-name");
+    if (limited) return new Response("Too Many Requests", { status: 429 });
+
+    // 5. Business logic (function-specific)
+    const body = await req.json();
+    const result = await businessLogic(supabaseAdmin, user, tenantId, body);
+
+    // 6. Structured log
+    log.info("function-name.success", {
+      requestId, userId: user.id, tenantId,
+      durationMs: Date.now() - startTime
+    });
+
+    return new Response(JSON.stringify(result), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" }
+    });
+
+  } catch (error) {
+    log.error("function-name.error", {
+      requestId, error: error.message,
+      durationMs: Date.now() - startTime
+    });
+    return new Response(
+      JSON.stringify({ error: "Internal Server Error" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+  }
+});
+    </pre>
+
+    <h3>7.2 Function Groups</h3>
+
+    <div class="fn-group no-break">
+      <div class="fn-group-title">GROUP: AUTH</div>
+      <div class="fn-group-body">
+        <div class="fn-list">
+          <span class="fn-tag">auth-wallet-connect</span>
+          <span class="fn-tag">auth-wallet-verify</span>
+          <span class="fn-tag">auth-wallet-disconnect</span>
+        </div>
+        <p class="fn-desc">Handles Xaman QR payload creation, polling, and wallet registration. On successful verification, creates/updates <code>user_wallets</code> record and fires <code>wallet.connect</code> audit event. Disconnect revokes wallet and logs <code>wallet.disconnect</code>.</p>
+      </div>
+    </div>
+
+    <div class="fn-group no-break">
+      <div class="fn-group-title">GROUP: XRPL</div>
+      <div class="fn-group-body">
+        <div class="fn-list">
+          <span class="fn-tag">xrpl-account-info</span>
+          <span class="fn-tag">xrpl-build-tx</span>
+          <span class="fn-tag">xrpl-submit-tx</span>
+          <span class="fn-tag">xrpl-token-meta</span>
+          <span class="fn-tag">xrpl-faucet</span>
+        </div>
+        <p class="fn-desc">Core XRPL interaction layer. <code>xrpl-account-info</code> fetches account state in parallel (account_info, account_lines, account_tx, mpt_issuances, mpt_holdings via Promise.all). <code>xrpl-build-tx</code> constructs unsigned transactions. <code>xrpl-submit-tx</code> submits pre-signed blobs. <code>xrpl-faucet</code> is dev/testnet only — gated by environment check.</p>
+      </div>
+    </div>
+
+    <div class="fn-group no-break">
+      <div class="fn-group-title">GROUP: TOKENIZATION</div>
+      <div class="fn-group-body">
+        <div class="fn-list">
+          <span class="fn-tag">token-create</span>
+          <span class="fn-tag">token-approve</span>
+          <span class="fn-tag">token-mint</span>
+          <span class="fn-tag">token-transfer</span>
+          <span class="fn-tag">token-freeze</span>
+          <span class="fn-tag">token-redeem</span>
+          <span class="fn-tag">token-authorize-holder</span>
+        </div>
+        <p class="fn-desc">Full token lifecycle management. <code>token-create</code> creates a DB record in draft state. <code>token-approve</code> transitions to approved (reviewer role required). <code>token-mint</code> builds MPTokenIssuanceCreate tx for Xaman signing. <code>token-authorize-holder</code> calls MPTokenAuthorize after KYC passes. <code>token-freeze</code> and <code>token-redeem</code> require tenant_admin role and write to audit_log.</p>
+      </div>
+    </div>
+
+    <div class="fn-group no-break">
+      <div class="fn-group-title">GROUP: PROPERTY</div>
+      <div class="fn-group-body">
+        <div class="fn-list">
+          <span class="fn-tag">property-submit</span>
+          <span class="fn-tag">property-review</span>
+          <span class="fn-tag">property-valuation</span>
+          <span class="fn-tag">property-ipfs-upload</span>
+        </div>
+        <p class="fn-desc">Property pipeline. <code>property-submit</code> validates input and creates property record in draft state. <code>property-review</code> handles approve/reject/revision transitions (reviewer role). <code>property-valuation</code> locks valuation amount. <code>property-ipfs-upload</code> uploads documents to IPFS and returns CID.</p>
+      </div>
+    </div>
+
+    <div class="fn-group no-break">
+      <div class="fn-group-title">GROUP: MARKET</div>
+      <div class="fn-group-body">
+        <div class="fn-list">
+          <span class="fn-tag">order-create</span>
+          <span class="fn-tag">order-fill</span>
+          <span class="fn-tag">order-cancel</span>
+          <span class="fn-tag">price-history</span>
+        </div>
+        <p class="fn-desc">Secondary market order book. <code>order-create</code> validates KYC and token holding before placing order. <code>order-fill</code> matches orders and builds MPToken transfer transaction for Xaman signing. <code>price-history</code> returns OHLCV data from <code>token_price_history</code> for charting.</p>
+      </div>
+    </div>
+
+    <div class="fn-group no-break">
+      <div class="fn-group-title">GROUP: TENANT</div>
+      <div class="fn-group-body">
+        <div class="fn-list">
+          <span class="fn-tag">tenant-create</span>
+          <span class="fn-tag">tenant-config</span>
+          <span class="fn-tag">tenant-invite</span>
+          <span class="fn-tag">tenant-suspend</span>
+        </div>
+        <p class="fn-desc">Tenant management — platform_admin role required for all. <code>tenant-create</code> provisions new tenant with default config. <code>tenant-invite</code> sends magic link to tenant admin email. <code>tenant-suspend</code> sets status=suspended and terminates active sessions.</p>
+      </div>
+    </div>
+
+    <div class="fn-group no-break">
+      <div class="fn-group-title">GROUP: KYC</div>
+      <div class="fn-group-body">
+        <div class="fn-list">
+          <span class="fn-tag">kyc-initiate</span>
+          <span class="fn-tag">kyc-webhook</span>
+          <span class="fn-tag">kyc-status</span>
+          <span class="fn-tag">kyc-authorize-wallet</span>
+        </div>
+        <p class="fn-desc"><code>kyc-initiate</code> creates KYC inquiry with configured provider and returns redirect URL to provider UI. <code>kyc-webhook</code> receives webhook from KYC provider on completion — updates <code>kyc_verifications</code> and triggers <code>kyc-authorize-wallet</code> if approved. <code>kyc-authorize-wallet</code> calls MPTokenAuthorize on XRPL for the user's wallet.</p>
+      </div>
+    </div>
+
+    <h3>7.3 Rate Limiting</h3>
+    <p>
+      All edge functions implement token bucket rate limiting. Buckets are stored in a
+      <code>rate_limit_buckets</code> table (or Supabase KV if available). The default limits:
+    </p>
+    <table>
+      <thead>
+        <tr><th>Function Group</th><th>Limit</th><th>Window</th><th>Key</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>xrpl-account-info</td><td>30 requests</td><td>1 minute</td><td>user_id</td></tr>
+        <tr><td>token-mint, token-freeze</td><td>10 requests</td><td>1 hour</td><td>user_id + tenant_id</td></tr>
+        <tr><td>order-create</td><td>50 requests</td><td>1 minute</td><td>user_id</td></tr>
+        <tr><td>kyc-initiate</td><td>5 requests</td><td>1 day</td><td>user_id</td></tr>
+        <tr><td>xrpl-faucet</td><td>3 requests</td><td>1 hour</td><td>user_id + IP</td></tr>
+        <tr><td>auth-wallet-connect</td><td>10 requests</td><td>1 hour</td><td>user_id + IP</td></tr>
+        <tr><td>All others</td><td>100 requests</td><td>1 minute</td><td>user_id</td></tr>
+      </tbody>
+    </table>
+
+    <h3>7.4 Structured Logging Format</h3>
+    <p>
+      All edge functions emit structured JSON logs to Supabase's log drain. Logs include a request ID
+      for distributed tracing across multi-function operations.
+    </p>
+    <pre>
+{
+  "level": "info",
+  "service": "xrpl-account-info",
+  "requestId": "a3f2...",
+  "userId": "user-uuid",
+  "tenantId": "tenant-uuid",
+  "network": "mainnet",
+  "walletAddress": "rXXXXXXXX",
+  "durationMs": 342,
+  "xrplRequests": ["account_info", "account_lines", "account_tx", "mpt_issuances"],
+  "timestamp": "2026-03-07T14:32:11.422Z"
+}
+    </pre>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  SECTION 8: WALLET & KEY MANAGEMENT                           -->
+<!-- ============================================================ -->
+<div class="page page-break">
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">08</span>
+      <h2 class="section-title">Wallet &amp; Key Management — Security Model</h2>
+    </div>
+
+    <div class="callout critical no-break">
+      <span class="callout-icon">&#9888;</span>
+      <div class="callout-body">
+        <span class="callout-title">The Most Critical Section of This Document</span>
+        <p>Every security decision described in this section is a response to a real issue found in V1.
+        These rules are absolute — they are not negotiable for performance or convenience.
+        Any PR that violates these rules must be rejected regardless of other merit.</p>
+      </div>
+    </div>
+
+    <h3>8.1 The Golden Rule: No Raw Keys in the Database</h3>
+    <p>
+      The V1 codebase stored raw XRPL private keys (<code>wallet_secret</code>) in the <code>user_wallets</code>
+      table. This is a critical security vulnerability: a single SQL injection, a misconfigured RLS policy,
+      or a compromised service role key would expose every user's private keys.
+    </p>
+    <p>
+      <strong>In V2, the rule is absolute: no private key material of any kind ever touches a relational database column.</strong>
+      This includes encrypted keys — if the encryption key is also stored in the DB, you have not improved
+      the security posture. Key material must be stored in a dedicated secrets management service that:
+    </p>
+    <ul>
+      <li>Stores keys in hardware-backed encrypted storage (ideally HSM)</li>
+      <li>Provides key operations (sign, encrypt, decrypt) via API, never returning raw key material</li>
+      <li>Maintains an access log of all key usage</li>
+      <li>Supports key rotation without application downtime</li>
+    </ul>
+
+    <h3>8.2 Signing Architecture by Scenario</h3>
+
+    <pre class="ascii-diagram">
+SCENARIO 1: END USER MAINNET TRANSACTION (Primary)
+═══════════════════════════════════════════════════
+User Browser                Edge Function              XRPL
+    │                            │                       │
+    ├── Request tx build ────────►│                       │
+    │                            ├── Build unsigned tx   │
+    │◄── Unsigned tx blob ────────┤                       │
+    │                            │                       │
+    ├── Xaman QR displayed       │                       │
+    │   (user scans with         │                       │
+    │    Xaman mobile app)       │                       │
+    │                            │                       │
+    │                    User signs on device            │
+    │                    (private key NEVER leaves phone)│
+    │                            │                       │
+    ├── Signed tx blob ──────────►│                       │
+    │                            ├── Submit signed tx ───►│
+    │◄── Confirmation ────────────┤◄──── tx_result ───────┤
+
+
+SCENARIO 2: TESTNET DEMO / FAUCET (Dev only)
+═════════════════════════════════════════════
+No per-user keys. One platform-owned testnet wallet used for all demo transactions.
+Vault ref stored in wallet_vault_refs for the platform faucet wallet only.
+This wallet is funded via xrpl-faucet endpoint.
+Never used on mainnet.
+
+
+SCENARIO 3: ISSUER WALLET (Platform-controlled issuances)
+══════════════════════════════════════════════════════════
+Edge Function              Supabase Vault               XRPL
+    │                            │                       │
+    ├── Lookup vault key ID ─────►│                       │
+    │   (from wallet_vault_refs) │                       │
+    │                            │                       │
+    ├── Request sign operation ──►│                       │
+    │   (pass unsigned tx blob)  ├── Sign in vault       │
+    │                            │   (key never leaves)  │
+    │◄── Signed tx blob ──────────┤                       │
+    │                            │                       │
+    ├── Submit signed tx ─────────────────────────────────►│
+    │◄── Confirmation ────────────────────────────────────┤
+    </pre>
+
+    <h3>8.3 Vault Reference Pattern</h3>
+    <p>
+      When server-side signing is required (e.g., the platform issuer wallet that creates MPT issuances),
+      the key material lives in a secrets vault. The database stores only an opaque reference ID.
+    </p>
+    <pre>
+-- wallet_vault_refs: maps wallet → vault reference only
+-- The vault_key_id is meaningless without access to the vault service
+SELECT vault_key_id FROM wallet_vault_refs WHERE wallet_id = $1;
+-- Returns: "vault-key-abc123def456"
+-- The edge function then calls:
+--   vaultClient.sign(vaultKeyId, unsignedTxBlob)
+-- The private key NEVER leaves the vault.
+    </pre>
+
+    <div class="callout best-practice no-break">
+      <span class="callout-icon">&#10003;</span>
+      <div class="callout-body">
+        <span class="callout-title">Supabase Vault Implementation</span>
+        <p>Supabase Vault uses <code>pgsodium</code> (libsodium) with a root key stored outside the database.
+        Encrypted columns are decryptable only by edge functions with the correct service role — not via direct
+        SQL by DB users. For V2 Phase 1, Supabase Vault provides sufficient security. Phase 5 (production
+        hardening) should evaluate AWS KMS or HashiCorp Vault for FIPS 140-2 compliance.</p>
+      </div>
+    </div>
+
+    <h3>8.4 Xaman Wallet Integration</h3>
+    <p>
+      Xaman (formerly XUMM) is the primary signing method for all mainnet user transactions. The integration
+      works as follows:
+    </p>
+    <table>
+      <thead>
+        <tr><th>Step</th><th>Actor</th><th>Action</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>1</td><td>Frontend</td><td>User initiates action (buy tokens, sign transfer). Calls <code>auth-wallet-connect</code> or <code>xrpl-build-tx</code> edge function.</td></tr>
+        <tr><td>2</td><td>Edge Function</td><td>Creates Xaman payload with the unsigned transaction. Returns <code>qr_png</code> and <code>payload_uuid</code>.</td></tr>
+        <tr><td>3</td><td>Frontend</td><td>Displays QR code to user. Begins polling <code>auth-wallet-verify</code> every 2 seconds (using <code>XAMAN_POLL_INTERVAL_MS</code> constant).</td></tr>
+        <tr><td>4</td><td>User</td><td>Scans QR with Xaman mobile app. Reviews transaction details. Approves or rejects.</td></tr>
+        <tr><td>5</td><td>Xaman Cloud</td><td>Notifies payload as signed. Returns signed transaction blob.</td></tr>
+        <tr><td>6</td><td>Edge Function</td><td>Polling detects signed status. Calls <code>xrpl-submit-tx</code> with signed blob.</td></tr>
+        <tr><td>7</td><td>XRPL</td><td>Transaction validated and confirmed. Returns tx hash and ledger index.</td></tr>
+        <tr><td>8</td><td>Edge Function</td><td>Updates DB (token_holdings, token_transactions). Writes audit log.</td></tr>
+        <tr><td>9</td><td>Frontend</td><td>Shows success screen with XRPL explorer link (<code>explorerUrl(txHash, network)</code>).</td></tr>
+      </tbody>
+    </table>
+
+    <h3>8.5 Future: Ledger Hardware Wallet Support</h3>
+    <p>
+      Phase 5+ will add support for Ledger hardware wallets via WebUSB/WebHID API. In this model:
+    </p>
+    <ul>
+      <li>User connects Ledger device via USB to their computer</li>
+      <li>The <code>@ledgerhq/hw-transport-webusb</code> library communicates with the device from the browser</li>
+      <li>The unsigned transaction is sent to the Ledger device for display and user confirmation</li>
+      <li>The signed transaction is returned from the Ledger and submitted via <code>xrpl-submit-tx</code></li>
+      <li>Private key never leaves the Ledger hardware — equivalent security to Xaman</li>
+    </ul>
+    <p>
+      Note: The XRPL app must be installed on the Ledger device. This workflow requires Chrome or Edge
+      (WebUSB support). No special server-side changes are needed.
+    </p>
+
+    <h3>8.6 Wallet Audit Trail</h3>
+    <p>
+      Every wallet operation writes an immutable record to <code>wallet_audit_log</code>. This is not
+      optional — it is enforced by the edge function layer, not the client. The audit log cannot be
+      modified or deleted by any application code (enforced by DB trigger).
+    </p>
+    <table>
+      <thead>
+        <tr><th>Event</th><th>When</th><th>Metadata</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>connect</code></td><td>Wallet successfully verified via Xaman</td><td>provider, network, IP address</td></tr>
+        <tr><td><code>disconnect</code></td><td>User manually disconnects wallet</td><td>reason: user_action</td></tr>
+        <tr><td><code>inactivity_timeout</code></td><td>Auto-disconnect after inactivity timeout</td><td>timeout_duration_min</td></tr>
+        <tr><td><code>sign_request</code></td><td>Transaction signing initiated</td><td>tx_type, payload_uuid</td></tr>
+        <tr><td><code>sign_success</code></td><td>Transaction signed and submitted</td><td>tx_hash, ledger_index, tx_type</td></tr>
+        <tr><td><code>sign_fail</code></td><td>Signing rejected or timed out</td><td>reason, payload_uuid</td></tr>
+        <tr><td><code>revoke</code></td><td>Admin revokes wallet (compliance action)</td><td>admin_id, reason</td></tr>
+        <tr><td><code>clawback</code></td><td>Token clawback executed from this wallet</td><td>issuance_id, amount, tx_hash</td></tr>
+      </tbody>
+    </table>
+
+    <h3>8.7 Inactivity Timeout</h3>
+    <p>
+      Wallet sessions auto-disconnect after a configurable inactivity period. In V2, this is implemented
+      as a standalone <code>useInactivity</code> hook — not embedded inside the wallet context (as it was in V1).
+    </p>
+    <pre>
+// useInactivity.ts — standalone hook, no responsibilities beyond inactivity tracking
+export function useInactivity({
+  timeoutMinutes,
+  onTimeout,
+}: {
+  timeoutMinutes: number;
+  onTimeout: () => void;
+}) {
+  const lastActivityRef = useRef(Date.now());
+  const timerRef = useRef&lt;ReturnType&lt;typeof setTimeout&gt;&gt;();
+
+  const resetTimer = useCallback(() => {
+    lastActivityRef.current = Date.now();
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(onTimeout, timeoutMinutes * 60 * 1000);
+  }, [timeoutMinutes, onTimeout]);
+
+  useEffect(() => {
+    const events = ['mousemove', 'keydown', 'click', 'touchstart'];
+    events.forEach(e => window.addEventListener(e, resetTimer, { passive: true }));
+    resetTimer(); // start timer on mount
+
+    return () => {
+      clearTimeout(timerRef.current);
+      events.forEach(e => window.removeEventListener(e, resetTimer));
+    };
+  }, [resetTimer]);
+}
+    </pre>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  SECTION 9: FRONTEND ARCHITECTURE V2                          -->
+<!-- ============================================================ -->
+<div class="page page-break">
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">09</span>
+      <h2 class="section-title">Frontend Architecture (V2)</h2>
+    </div>
+
+    <h3>9.1 Why Next.js 14 (App Router)</h3>
+    <p>
+      V1 used React 18 + Vite — a fast single-page application setup well-suited for prototyping but lacking
+      server-side rendering capabilities needed for production. V2 upgrades to <strong>Next.js 14 with App Router</strong>
+      for these reasons:
+    </p>
+    <table>
+      <thead>
+        <tr><th>Feature</th><th>Benefit for This Platform</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Server Components</td><td>Property listings, marketplace, and token details are pre-rendered on the server — crawlable by search engines and instantly loaded by investors. No FOUC (Flash of Unstyled Content) on property detail pages.</td></tr>
+        <tr><td>Server Actions</td><td>Form submissions (property submit, KYC initiation) go directly to server-side logic without building a separate API route, reducing boilerplate.</td></tr>
+        <tr><td>Middleware Layer</td><td>Subdomain-to-tenant resolution happens in Next.js middleware before any page component executes — the cleanest possible tenant routing architecture.</td></tr>
+        <tr><td>Layouts</td><td>Tenant-specific shell (logo, colors, nav) is rendered in a shared layout that wraps all tenant pages, injected once at the layout level.</td></tr>
+        <tr><td>Image Optimization</td><td>Property images and floor plans are automatically optimized via next/image — WebP conversion, lazy loading, and responsive srcset.</td></tr>
+        <tr><td>API Routes</td><td>Webhook endpoints (KYC provider callbacks, Xaman notifications) can be handled as Next.js API routes alongside the main app — no separate Express server needed.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>9.2 Project Structure</h3>
+    <pre class="ascii-diagram">
+src/
+├── app/                          # Next.js App Router
+│   ├── (tenant)/                 # Route group: tenant portal pages
+│   │   ├── layout.tsx            # Tenant shell: fetch config, inject branding
+│   │   ├── page.tsx              # Landing / property listings (server component)
+│   │   ├── property/[id]/        # Property detail (server component)
+│   │   ├── portfolio/            # User portfolio (client component: wallet data)
+│   │   ├── mint/                 # Token minting wizard (client component)
+│   │   ├── marketplace/          # Secondary market (hybrid)
+│   │   └── kyc/                  # KYC flow (client component)
+│   │
+│   ├── (platform-admin)/         # Platform admin area
+│   │   ├── layout.tsx            # Admin shell
+│   │   ├── tenants/              # Tenant management
+│   │   └── analytics/            # Platform-level analytics
+│   │
+│   └── api/                      # Next.js API routes
+│       ├── kyc-webhook/route.ts  # KYC provider webhook handler
+│       └── xaman-notify/route.ts # Xaman webhook (optional)
+│
+├── components/
+│   ├── ui/                       # shadcn/ui primitives (DO NOT edit)
+│   ├── wallet/                   # WalletConnectModal, WalletButton, WalletStatus
+│   ├── token/                    # TokenCard, TokenMintWizard, OrderBook
+│   ├── property/                 # PropertyCard, PropertyDetail, PropertySubmitForm
+│   ├── kyc/                      # KYCStatusBadge, KYCModal
+│   └── shared/                   # ErrorBoundary, LoadingSpinner, EmptyState
+│
+├── hooks/
+│   ├── useWalletConnect.ts       # Xaman connect flow
+│   ├── useWalletStore.ts         # Zustand store for wallet state
+│   ├── useInactivity.ts          # Standalone inactivity timer
+│   ├── useXRPLAccount.ts         # React Query: account data
+│   ├── useXRPLPortfolio.ts       # React Query: token holdings
+│   ├── useTokenOrders.ts         # React Query: order book
+│   ├── useTenantConfig.ts        # Access injected tenant config
+│   └── useKYCStatus.ts           # User KYC state
+│
+├── lib/
+│   ├── constants.ts              # XRPL_POLL_INTERVAL_MS, XAMAN_POLL_INTERVAL_MS
+│   ├── xrpl-utils.ts             # decodeCurrency, formatAmount, explorerUrl
+│   ├── xrpl-types.ts             # TypeScript interfaces for all XRPL responses
+│   └── supabase/
+│       ├── client.ts             # Browser Supabase client (anon key only)
+│       └── types.ts              # Auto-generated (CI regenerates on each migration)
+│
+└── middleware.ts                 # Tenant subdomain resolution
+    </pre>
+
+    <h3>9.3 Wallet State Architecture</h3>
+    <p>
+      V1's <code>ActiveWalletContext</code> god object is decomposed into three focused pieces that
+      communicate through well-defined interfaces:
+    </p>
+
+    <pre class="ascii-diagram">
+┌──────────────────────────────────────────────────────────────────┐
+│                     WALLET STATE (V2)                             │
+│                                                                   │
+│  useWalletStore (Zustand)          useWalletConnect (Hook)        │
+│  ─────────────────────────         ───────────────────────────── │
+│  • wallets: ConnectedWallet[]      • connect(): Promise           │
+│  • activeWallet: string | null     • disconnect(id): Promise      │
+│  • setActiveWallet(id): void       • pollXamanPayload(): void     │
+│  • addWallet(w): void                                             │
+│  • removeWallet(id): void          Single-purpose: manages the    │
+│                                    QR → sign → verify flow only   │
+│  Single-purpose: holds wallet                                     │
+│  selection state in memory         useInactivity (Hook)           │
+│  + localStorage                    ───────────────────────────── │
+│                                    • Tracks user activity events  │
+│  useXRPLAccount (React Query)      • Calls disconnect on timeout  │
+│  ─────────────────────────────     • Configured per-tenant        │
+│  • Fetches live XRPL data          • Fires audit log event        │
+│  • Polls every XRPL_POLL_MS        • Self-contained: no wallet    │
+│  • React Query cache                 state coupling               │
+└──────────────────────────────────────────────────────────────────┘
+    </pre>
+
+    <h3>9.4 Error Boundaries</h3>
+    <p>
+      Every major UI section is wrapped in a React Error Boundary. If a section throws (e.g., malformed
+      XRPL data, unexpected null), only that section degrades — the rest of the app continues to function.
+    </p>
+    <pre>
+// components/shared/ErrorBoundary.tsx
+export function SectionErrorBoundary({
+  children,
+  section,
+}: {
+  children: React.ReactNode;
+  section: string;
+}) {
+  return (
+    &lt;ErrorBoundary
+      fallback={
+        &lt;div className="p-6 border border-red-200 rounded-lg bg-red-50"&gt;
+          &lt;p className="text-red-700 font-semibold"&gt;
+            {section} failed to load.
+          &lt;/p&gt;
+          &lt;p className="text-sm text-red-600 mt-1"&gt;
+            Please refresh the page. If this persists, contact support.
+          &lt;/p&gt;
+        &lt;/div&gt;
+      }
+      onError={(error) =&gt; Sentry.captureException(error, { tags: { section } })}
+    &gt;
+      {children}
+    &lt;/ErrorBoundary&gt;
+  );
+}
+
+// Usage in portfolio page:
+&lt;SectionErrorBoundary section="Portfolio"&gt;
+  &lt;PortfolioSection walletAddress={wallet.address} /&gt;
+&lt;/SectionErrorBoundary&gt;
+    </pre>
+
+    <h3>9.5 Key V2 Frontend Conventions</h3>
+
+    <table>
+      <thead>
+        <tr><th>Convention</th><th>Rule</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Supabase client</td><td>Always import from <code>@/lib/supabase/client</code>. Never call <code>createClient()</code> directly. ESLint rule enforces this.</td></tr>
+        <tr><td>XRPL calls</td><td>Never import any XRPL SDK in frontend code. All XRPL interactions go through edge functions via <code>supabase.functions.invoke()</code>.</td></tr>
+        <tr><td>Currency decoding</td><td>Always use <code>decodeCurrency(hex)</code> from <code>@/lib/xrpl-utils</code>. Never inline decode.</td></tr>
+        <tr><td>Polling intervals</td><td>Always use <code>XRPL_POLL_INTERVAL_MS</code> and <code>XAMAN_POLL_INTERVAL_MS</code> from <code>@/lib/constants</code>. Never hardcode millisecond values.</td></tr>
+        <tr><td>Error handling</td><td>All async operations use try/catch with typed errors. <code>toast.error()</code> for user-visible errors. <code>Sentry.captureException()</code> for unexpected errors.</td></tr>
+        <tr><td>Test data</td><td>Test data generators live in <code>src/__tests__/fixtures/</code>. Never in production components. Gated by <code>process.env.NODE_ENV === 'development'</code>.</td></tr>
+        <tr><td>Explorer URLs</td><td>Always use <code>explorerUrl(txHash, network)</code>. Never hardcode testnet or mainnet explorer URLs.</td></tr>
+        <tr><td>Interval cleanup</td><td>All <code>setInterval</code> and <code>setTimeout</code> refs must be stored in <code>useRef</code> and cleared in <code>useEffect</code> cleanup.</td></tr>
+        <tr><td>List keys</td><td>Never use array index as React key. Always use stable unique IDs (UUID assigned at item creation).</td></tr>
+        <tr><td>Auth state</td><td>Use <code>onAuthStateChange</code> only. Do not call <code>getSession()</code> separately — Supabase v2 fires the listener immediately with current session.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>9.6 Tenant Branding Injection</h3>
+    <p>
+      Tenant branding (colors, logo, font) is injected as CSS custom properties at the root layout level,
+      sourced from the tenant config fetched server-side. No client-side flicker, no FOUC.
+    </p>
+    <pre>
+// app/(tenant)/layout.tsx (server component)
+export default async function TenantLayout({ children }) {
+  const slug = headers().get('x-tenant-slug');
+  const config = await getTenantConfig(slug); // server-side DB call
+
+  const cssVars = {
+    '--tenant-primary': config.branding.primary_color,
+    '--tenant-font': config.branding.font ?? 'inherit',
+  };
+
+  return (
+    &lt;html style={cssVars}&gt;
+      &lt;body&gt;
+        &lt;TenantConfigProvider config={config}&gt;
+          &lt;TenantNav logo={config.branding.logo_url} name={config.branding.company_name} /&gt;
+          {children}
+        &lt;/TenantConfigProvider&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+  );
+}
+    </pre>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  SECTION 10: XRPL INTEGRATION V2                              -->
+<!-- ============================================================ -->
+<div class="page page-break">
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">10</span>
+      <h2 class="section-title">XRPL Integration (V2)</h2>
+    </div>
+
+    <h3>10.1 Token Type Decision Matrix</h3>
+    <p>
+      When a tenant tokenizes a property, the platform must select the appropriate XRPL token standard.
+      Use this decision tree:
+    </p>
+    <pre class="ascii-diagram">
+START: What are you tokenizing?
+    │
+    ├── A unique, non-fungible property certificate (deed)?
+    │         └──► Use NFT (XLS-20)
+    │              • One token = one property
+    │              • Non-divisible
+    │              • Transfer fee built-in
+    │
+    └── A fractional ownership share in a property?
+              │
+              ├── Do you need KYC/AML controls?
+              │       └── Yes ──► MPT with RequireAuth + CanClawback
+              │       └── No  ──► MPT without RequireAuth (public token)
+              │
+              ├── Do you need to freeze individual wallets?
+              │       └── Yes ──► MPT with CanLock
+              │
+              ├── Are you migrating from an existing IOU position?
+              │       └── Yes ──► IOU (legacy support only)
+              │                   Plan migration path to MPT
+              │
+              └── Default for all new regulated offerings:
+                       MPT with RequireAuth + CanClawback + CanLock + CanFreeze
+    </pre>
+
+    <h3>10.2 Parallel XRPL Requests</h3>
+    <p>
+      V1's sequential XRPL requests added up to 400–800ms of unnecessary latency. V2 uses
+      <code>Promise.all()</code> to fire all independent requests simultaneously.
+    </p>
+    <pre>
+// xrpl-account-info edge function (V2)
+// All 5 requests fire in parallel — total time = max(individual times) not sum
+async function fetchAccountData(address: string, client: XRPLClient) {
+  const [
+    accountInfo,
+    accountLines,
+    accountTx,
+    mptIssuances,
+    mptHoldings,
+    serverInfo,  // for dynamic reserve calculation
+  ] = await Promise.all([
+    client.request({ command: "account_info", account: address }),
+    client.request({ command: "account_lines", account: address }),
+    client.request({ command: "account_tx", account: address, limit: 50 }),
+    client.request({ command: "account_objects", account: address, type: "mpt_issuance" }),
+    client.request({ command: "account_objects", account: address, type: "mptoken" }),
+    client.request({ command: "server_info" }),
+  ]);
+
+  // Dynamic reserve — never hardcoded
+  const baseReserve = serverInfo.result.info.validated_ledger.reserve_base_xrp;
+  const ownerReserve = serverInfo.result.info.validated_ledger.reserve_inc_xrp;
+
+  return buildPortfolioResponse(
+    accountInfo, accountLines, accountTx,
+    mptIssuances, mptHoldings,
+    baseReserve, ownerReserve
+  );
+}
+    </pre>
+
+    <h3>10.3 Node Failover Strategy</h3>
+    <p>
+      XRPL nodes can be temporarily unavailable. V2 implements automatic failover with exponential backoff:
+    </p>
+    <pre>
+// xrpl-client.ts (edge function shared utility)
+const XRPL_NODES = {
+  mainnet: [
+    "wss://xrplcluster.com",
+    "wss://s1.ripple.com",
+    "wss://s2.ripple.com",
+  ],
+  testnet: [
+    "wss://s.altnet.rippletest.net:51233",
+    "wss://testnet.xrpl-labs.com",
+  ],
+};
+
+async function withXRPLFailover&lt;T&gt;(
+  network: 'mainnet' | 'testnet',
+  operation: (client: XRPLClient) =&gt; Promise&lt;T&gt;
+): Promise&lt;T&gt; {
+  const nodes = XRPL_NODES[network];
+
+  for (let attempt = 0; attempt &lt; nodes.length; attempt++) {
+    try {
+      const client = new XRPLClient(nodes[attempt]);
+      await client.connect();
+      try {
+        return await operation(client);
+      } finally {
+        await client.disconnect();
+      }
+    } catch (error) {
+      if (attempt === nodes.length - 1) throw error; // exhausted all nodes
+      // Exponential backoff: 100ms, 200ms, 400ms...
+      const delay = 100 * Math.pow(2, attempt);
+      await new Promise(resolve =&gt; setTimeout(resolve, delay));
+      log.warn("xrpl.node_failover", { node: nodes[attempt], attempt, delay });
+    }
+  }
+  throw new Error("All XRPL nodes exhausted");
+}
+    </pre>
+
+    <h3>10.4 Real-Time Strategy</h3>
+    <p>
+      V2 cleanly separates two distinct real-time concerns that V1 conflated:
+    </p>
+    <table>
+      <thead>
+        <tr><th>Concern</th><th>Strategy</th><th>Why</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Transaction confirmation</strong><br>(Did my mint go through?)</td>
+          <td>XRPL WebSocket subscription<br>(<code>subscribe { accounts: [address] }</code>)</td>
+          <td>Low latency: user is waiting for this specific event. WebSocket fires immediately on ledger close (~4 seconds).</td>
+        </tr>
+        <tr>
+          <td><strong>Portfolio balance refresh</strong><br>(How many tokens do I hold?)</td>
+          <td>React Query polling<br>(<code>refetchInterval: XRPL_POLL_INTERVAL_MS</code>)</td>
+          <td>Balances don't need sub-second precision. 30-second polling is acceptable for portfolio data and is simpler to implement reliably.</td>
+        </tr>
+        <tr>
+          <td><strong>Order book updates</strong><br>(New buy/sell orders)</td>
+          <td>Supabase Realtime subscription<br>(<code>supabase.channel('token_orders')</code>)</td>
+          <td>Order book is stored in DB, not XRPL. Supabase Realtime broadcasts DB changes via WebSocket — lower latency than polling.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout best-practice no-break">
+      <span class="callout-icon">&#10003;</span>
+      <div class="callout-body">
+        <span class="callout-title">One WebSocket Per User, Not Per Component</span>
+        <p>The XRPL WebSocket connection is managed at the application level (initialized once in a server
+        component or global provider), not in individual page components. Mounting/unmounting components
+        must not open or close XRPL connections. The connection lifecycle is: open on wallet connect,
+        close on wallet disconnect or tab close.</p>
+      </div>
+    </div>
+
+    <h3>10.5 XRPL TypeScript Interfaces</h3>
+    <p>
+      The shared XRPL types library (<code>src/lib/xrpl-types.ts</code>) defines interfaces for every
+      response shape. Type assertions (<code>as XRPLAccountInfo</code>) are used exactly once — at the
+      boundary where the JSON-RPC response enters typed code. After that, everything is typed.
+    </p>
+    <pre>
+// Complete XRPL type definitions (excerpt — full file in xrpl-types.ts)
+
+export type XRPLNetwork = 'mainnet' | 'testnet' | 'devnet';
+
+export interface XRPLAccountInfoResponse {
+  result: {
+    account_data: XRPLAccountData;
+    validated: boolean;
+    ledger_index: number;
+    status: 'success' | 'error';
+  };
+}
+
+export interface XRPLAccountData {
+  Account: string;
+  Balance: string;           // drops, as string — use formatAmount() to display
+  Sequence: number;
+  OwnerCount: number;
+  Flags: number;
+  LedgerEntryType: 'AccountRoot';
+}
+
+export interface XRPLMPToken {
+  Account: string;
+  MPTokenIssuanceID: string;
+  MPTAmount: string;
+  Flags: number;
+  LedgerEntryType: 'MPToken';
+}
+
+export interface XRPLMPTIssuance {
+  Issuer: string;
+  MPTokenIssuanceID: string;
+  Flags: number;
+  MaximumAmount?: string;
+  OutstandingAmount: string;
+  TransferFee?: number;
+  MPTokenMetadata?: string;  // hex-encoded XLS-89
+  LedgerEntryType: 'MPTokenIssuance';
+}
+
+export interface XRPLTxResponse {
+  result: {
+    hash: string;
+    ledger_index: number;
+    validated: boolean;
+    meta: { TransactionResult: string };
+    TransactionType: string;
+    Account: string;
+    Sequence: number;
+  };
+}
+
+// Utility types for decoded/processed data (internal to app)
+export interface ProcessedMPTHolding {
+  issuanceId: string;
+  amount: string;
+  issuerAddress: string;
+  metadata: XLS89Metadata | null;
+  propertyRecord?: DbPropertyRecord;  // joined from DB
+}
+
+export interface XLS89Metadata {
+  name: string;
+  description: string;
+  ipfsUri: string;
+  currency: string;
+  assetClass: string;
+  valuationCents: number;
+}
+    </pre>
+
+    <h3>10.6 MPTokenAuthorize Flow</h3>
+    <p>
+      When an issuance has <code>RequireAuth</code> set, every holder must be explicitly authorized by the
+      issuer before they can receive or hold tokens. This is the on-chain KYC enforcement mechanism:
+    </p>
+    <pre class="ascii-diagram">
+KYC Provider                 kyc-webhook fn            kyc-authorize-wallet fn        XRPL
+     │                            │                            │                        │
+     ├── POST /kyc-webhook ───────►│                            │                        │
+     │   {inquiry_id: "...",       │                            │                        │
+     │    status: "approved"}      │                            │                        │
+     │                            ├── Update kyc_verifications │                        │
+     │                            │   (status=approved)        │                        │
+     │                            │                            │                        │
+     │                            ├── Call kyc-authorize ──────►│                        │
+     │                            │   (userId, walletAddress,  │                        │
+     │                            │    issuanceId)             │                        │
+     │                            │                            ├── Build MPTokenAuthorize│
+     │                            │                            │   tx (issuer signs)    │
+     │                            │                            │                        │
+     │                            │                            ├── Submit tx ───────────►│
+     │                            │                            │◄── tx confirmed ────────┤
+     │                            │                            │                        │
+     │                            │                            ├── Update token_holdings│
+     │                            │◄── authorized ─────────────┤   (authorized_at)      │
+     │                            │                            │                        │
+     │                            ├── Update profiles          │                        │
+     │                            │   (kyc_status=verified)    │                        │
+     │                            ├── Notify user              │                        │
+    </pre>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  SECTION 11: KYC / COMPLIANCE LAYER                           -->
+<!-- ============================================================ -->
+<div class="page page-break">
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">11</span>
+      <h2 class="section-title">KYC / Compliance Layer</h2>
+    </div>
+
+    <p>
+      The KYC (Know Your Customer) compliance layer bridges the off-chain identity verification process
+      with the on-chain <code>RequireAuth</code> mechanism of MPT tokens. A user cannot hold tokens in
+      a RequireAuth issuance until both conditions are met: (1) their KYC has been approved by the
+      tenant's configured KYC provider, and (2) the issuer has called <code>MPTokenAuthorize</code>
+      on XRPL to authorize their wallet address.
+    </p>
+
+    <h3>11.1 KYC Status Lifecycle</h3>
+
+    <div class="status-flow">
+      <span class="status-node" style="background:#dfe6e9;color:#636e72">unverified</span>
+      <span class="status-arrow">&#8594;</span>
+      <span class="status-node" style="background:#ffeaa7;color:#856404">pending</span>
+      <span class="status-arrow">&#8594;</span>
+      <span class="status-node" style="background:#d1f5e0;color:#1a7a4a">verified</span>
+      <span class="status-arrow">&#8594; (expiry) &#8594;</span>
+      <span class="status-node" style="background:#ffeaa7;color:#856404">expired</span>
+      <span class="status-arrow">&#8594; re-verify &#8594;</span>
+      <span class="status-node" style="background:#d1f5e0;color:#1a7a4a">verified</span>
+    </div>
+    <div class="status-flow" style="margin-top: 4px;">
+      <span class="status-node" style="background:#ffeaa7;color:#856404">pending</span>
+      <span class="status-arrow">&#8594; rejected &#8594;</span>
+      <span class="status-node" style="background:#fce4e4;color:#b91c1c">rejected</span>
+    </div>
+
+    <table style="margin-top: 4mm;">
+      <thead>
+        <tr><th>Status</th><th>Meaning</th><th>Can Purchase Tokens?</th><th>Can Transfer Tokens?</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><strong>unverified</strong></td><td>User has not initiated KYC</td><td>No</td><td>No (for RequireAuth tokens)</td></tr>
+        <tr><td><strong>pending</strong></td><td>KYC inquiry submitted, awaiting provider decision</td><td>No</td><td>No</td></tr>
+        <tr><td><strong>verified</strong></td><td>KYC approved; MPTokenAuthorize completed on XRPL</td><td>Yes</td><td>Yes</td></tr>
+        <tr><td><strong>rejected</strong></td><td>KYC denied by provider</td><td>No</td><td>No</td></tr>
+        <tr><td><strong>expired</strong></td><td>Verification expired; re-verification required</td><td>No (locked)</td><td>No (CanLock exercised)</td></tr>
+      </tbody>
+    </table>
+
+    <h3>11.2 KYC Provider Abstraction</h3>
+    <p>
+      Different tenants may require different KYC providers based on their jurisdiction, risk appetite,
+      or existing vendor relationships. V2 uses a <strong>pluggable provider pattern</strong>:
+    </p>
+    <pre>
+// kyc-provider interface — all providers implement this
+interface KYCProvider {
+  name: string;
+
+  // Initiate a new KYC inquiry for a user
+  initiateInquiry(user: UserRecord, returnUrl: string): Promise&lt;{
+    inquiryId: string;
+    redirectUrl: string;  // send user here to complete KYC
+  }&gt;;
+
+  // Parse webhook payload from this provider
+  parseWebhook(payload: unknown): {
+    inquiryId: string;
+    status: 'approved' | 'declined' | 'pending';
+    userId?: string;
+  };
+
+  // Verify webhook signature (provider-specific HMAC)
+  verifyWebhookSignature(payload: string, signature: string): boolean;
+}
+
+// Concrete implementations:
+class PersonaKYCProvider implements KYCProvider { ... }
+class OnfidoKYCProvider implements KYCProvider { ... }
+class ManualKYCProvider implements KYCProvider { ... }  // platform admin manual approval
+
+// Factory: selects provider based on tenant config
+function getKYCProvider(tenantConfig: TenantConfig): KYCProvider {
+  switch (tenantConfig.kyc_provider) {
+    case 'persona': return new PersonaKYCProvider(Deno.env.get('PERSONA_API_KEY')!);
+    case 'onfido':  return new OnfidoKYCProvider(Deno.env.get('ONFIDO_API_KEY')!);
+    default:        return new ManualKYCProvider();
+  }
+}
+    </pre>
+
+    <h3>11.3 PII Data Handling</h3>
+    <p>
+      Personal Identifiable Information (PII) collected during KYC — passport scans, selfies, address documents —
+      is handled by the KYC provider and <strong>never stored in the platform database</strong>. The
+      <code>kyc_verifications</code> table stores only:
+    </p>
+    <ul>
+      <li><strong>KYC status</strong> (pending/approved/rejected) — no PII</li>
+      <li><strong>Provider inquiry ID</strong> — opaque reference in provider's system</li>
+      <li><strong>Verification date</strong> — when approval occurred</li>
+      <li><strong>Data ref</strong> — optional pointer to provider's data access API (not raw PII)</li>
+    </ul>
+    <p>
+      KYC providers like Persona and Onfido are GDPR-compliant and handle PII retention, deletion requests,
+      and data residency requirements on their end. This keeps the platform's data compliance burden minimal.
+    </p>
+
+    <div class="callout warning no-break">
+      <span class="callout-icon">&#9888;</span>
+      <div class="callout-body">
+        <span class="callout-title">GDPR Right to Erasure Consideration</span>
+        <p>If a user exercises their right to erasure, the platform can delete their profile, wallet records,
+        and KYC verification records. However, <strong>blockchain transaction history is immutable</strong> —
+        wallet addresses and transaction amounts remain on the XRPL ledger forever. Users must be informed
+        of this in the Terms of Service before they connect a wallet.</p>
+      </div>
+    </div>
+
+    <h3>11.4 Clawback Use Cases</h3>
+    <p>
+      When a user's KYC expires, is revoked, or they are flagged by a sanctions screening service,
+      the platform can exercise the <code>CanClawback</code> flag to reclaim their tokens:
+    </p>
+    <pre class="ascii-diagram">
+TRIGGER: User's KYC expires / Sanctions match detected
+    │
+    ├── Compliance officer flags user in admin dashboard
+    │
+    ├── System calls token-freeze edge function
+    │   (requires tenant_admin + audit log entry with reason)
+    │
+    ├── CanLock exercised: lock user's token holding
+    │   (MPTokenIssuanceSet: lock flag on specific MPToken object)
+    │
+    │   User can no longer transfer tokens.
+    │
+    ├── If clawback required:
+    │   token-redeem edge function called
+    │   (CanClawback: MPTokenIssuancePay tx: issuer reclaims tokens)
+    │
+    ├── Issuer refunds equivalent value off-chain (fiat/XRP)
+    │
+    └── Audit log: clawback event recorded with:
+        - compliance_officer_id
+        - reason (kyc_expired | sanctions | court_order)
+        - tx_hash of clawback transaction
+        - amount_clawed_back
+        - issuance_id
+    </pre>
+
+    <h3>11.5 Regulatory Considerations by Jurisdiction</h3>
+    <table>
+      <thead>
+        <tr><th>Jurisdiction</th><th>Requirement</th><th>V2 Support</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>United States (SEC)</td><td>Accredited investor verification for most real estate token offerings; AML/BSA compliance</td><td>RequireAuth + accredited check in KYC flow; SAR reporting hooks</td></tr>
+        <tr><td>European Union (MiCA)</td><td>Asset-Referenced Token requirements; investor KYC; issuer authorization</td><td>RequireAuth + CanClawback + full audit trail</td></tr>
+        <tr><td>United Kingdom (FCA)</td><td>Authorized person requirement; KYC/AML per MLR 2017</td><td>Pluggable KYC (Onfido preferred for UK); RequireAuth</td></tr>
+        <tr><td>Singapore (MAS)</td><td>Digital Payment Token rules; SFA licensing for securities tokens</td><td>RequireAuth + transfer restrictions for securities-like tokens</td></tr>
+        <tr><td>UAE (ADGM/DIFC)</td><td>Virtual Assets regulatory framework; beneficial ownership</td><td>Full KYC + audit log + RequireAuth</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout info no-break">
+      <span class="callout-icon">&#8505;</span>
+      <div class="callout-body">
+        <span class="callout-title">This Document is Not Legal Advice</span>
+        <p>The regulatory considerations in this section are for architectural planning purposes only.
+        Each tenant operating in a specific jurisdiction must engage qualified legal counsel to determine
+        their specific compliance obligations. The platform provides the technical infrastructure; legal
+        compliance strategy is the tenant's responsibility.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  SECTION 12: IMPLEMENTATION ROADMAP                           -->
+<!-- ============================================================ -->
+<div class="page page-break">
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">12</span>
+      <h2 class="section-title">Implementation Roadmap</h2>
+    </div>
+
+    <p>
+      The V2 rebuild is organized into five phases spanning approximately 20 weeks. Each phase builds on
+      the previous and delivers independently deployable, tested functionality. Phases 1–3 constitute the
+      minimum viable product for a single-tenant real estate tokenization platform. Phases 4–5 add the
+      SaaS multi-tenant layer and production hardening.
+    </p>
+
+    <div class="callout best-practice no-break">
+      <span class="callout-icon">&#10003;</span>
+      <div class="callout-body">
+        <span class="callout-title">Build Multi-Tenancy Into Phase 1 — Not Phase 4</span>
+        <p>Even if you are launching with a single tenant, the multi-tenant DB schema (with <code>tenant_id</code>
+        on every table and RLS policies in place) must be built in Phase 1. Adding it later requires
+        rewriting every migration, every RLS policy, and every edge function. The cost of adding it now
+        is about 3 extra days of work in Phase 1. The cost of adding it later is 4–6 weeks of painful
+        refactoring with regression risk.</p>
+      </div>
+    </div>
+
+    <div class="phase-grid">
+      <div class="phase-box no-break">
+        <div class="phase-box-header">
+          <span class="phase-num">PHASE 1</span>
+          <span class="phase-title">Foundation</span>
+          <span class="phase-weeks">Weeks 1–4</span>
+        </div>
+        <ul>
+          <li>Multi-tenant DB schema with <code>tenant_id</code> on all tables</li>
+          <li>RLS policies on every user-facing table</li>
+          <li>Supabase Auth integration with tenant routing</li>
+          <li>Remove <code>wallet_secret</code> — implement vault reference pattern</li>
+          <li>Base Next.js 14 app with tenant middleware</li>
+          <li>Tenant subdomain resolution (middleware.ts)</li>
+          <li>Shared XRPL types library (<code>xrpl-types.ts</code>)</li>
+          <li>Shared XRPL utils (<code>xrpl-utils.ts</code>)</li>
+          <li>Universal edge function template + rate limiting setup</li>
+          <li>Structured logging infrastructure</li>
+          <li>CI pipeline: type check, lint, migration diff, Supabase type regen</li>
+          <li>Seed: 1 platform tenant for development</li>
+        </ul>
+      </div>
+
+      <div class="phase-box no-break">
+        <div class="phase-box-header">
+          <span class="phase-num">PHASE 2</span>
+          <span class="phase-title">Core Tokenization</span>
+          <span class="phase-weeks">Weeks 5–8</span>
+        </div>
+        <ul>
+          <li>Xaman wallet connect/verify flow (<code>auth-wallet-*</code>)</li>
+          <li>Wallet state: Zustand store + <code>useWalletConnect</code></li>
+          <li>Inactivity timeout hook (<code>useInactivity</code>)</li>
+          <li>Property submission form + <code>property-submit</code> edge function</li>
+          <li>Property review workflow (<code>property-review</code>)</li>
+          <li>MPT mint wizard (Xaman signing — no auto-sign key storage)</li>
+          <li><code>token-create</code>, <code>token-approve</code>, <code>token-mint</code> edge functions</li>
+          <li>Token registry: map XRPL issuance ID → DB property</li>
+          <li>Portfolio dashboard (parallel XRPL account data)</li>
+          <li>Error Boundaries on Portfolio, Mint, and Marketplace sections</li>
+          <li>IPFS document upload integration</li>
+          <li>Unit tests for tokenization edge functions</li>
+        </ul>
+      </div>
+
+      <div class="phase-box no-break">
+        <div class="phase-box-header">
+          <span class="phase-num">PHASE 3</span>
+          <span class="phase-title">Market + Compliance</span>
+          <span class="phase-weeks">Weeks 9–12</span>
+        </div>
+        <ul>
+          <li>KYC initiation flow (Persona integration)</li>
+          <li><code>kyc-initiate</code> + <code>kyc-webhook</code> edge functions</li>
+          <li>KYC provider webhook security (HMAC verification)</li>
+          <li>MPTokenAuthorize after KYC approval</li>
+          <li>Secondary market order book (buy/sell)</li>
+          <li><code>order-create</code>, <code>order-fill</code>, <code>order-cancel</code></li>
+          <li>Supabase Realtime for live order book updates</li>
+          <li>Token price history charting (OHLCV)</li>
+          <li>Token freeze/lock controls for tenant admin</li>
+          <li>Clawback flow with audit log</li>
+          <li>XRPL WebSocket subscription (tx confirmation only)</li>
+          <li>E2E test: full mint-to-transfer flow (Playwright)</li>
+        </ul>
+      </div>
+
+      <div class="phase-box no-break">
+        <div class="phase-box-header">
+          <span class="phase-num">PHASE 4</span>
+          <span class="phase-title">SaaS Enablement</span>
+          <span class="phase-weeks">Weeks 13–16</span>
+        </div>
+        <ul>
+          <li>Tenant onboarding wizard (self-service)</li>
+          <li><code>tenant-create</code>, <code>tenant-config</code>, <code>tenant-invite</code> edge functions</li>
+          <li>Tenant admin dashboard</li>
+          <li>White-label branding: logo, colors, custom fonts</li>
+          <li>Custom domain support (DNS verification)</li>
+          <li>Platform super-admin dashboard</li>
+          <li>Tenant analytics (active users, token volume, revenue)</li>
+          <li>Usage metering: API calls per tenant per day</li>
+          <li>Billing integration hooks (Stripe webhook events)</li>
+          <li>Tenant suspension and reactivation flow</li>
+          <li>Multi-KYC provider support (Onfido as second provider)</li>
+          <li>Tenant role management UI</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase-box no-break" style="margin-top: 6mm;">
+      <div class="phase-box-header">
+        <span class="phase-num">PHASE 5</span>
+        <span class="phase-title">Production Hardening</span>
+        <span class="phase-weeks">Weeks 17–20</span>
+      </div>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px;">
+        <ul>
+          <li>Rate limiting on all edge functions (token bucket, persisted)</li>
+          <li>Error reporting: Sentry integration for frontend + edge functions</li>
+          <li>P95 latency dashboards (Supabase observability or Datadog)</li>
+          <li>Full Playwright E2E test suite for all critical flows</li>
+          <li>Load testing: simulate 100 concurrent token purchases</li>
+          <li>Audit log retention policy and archiving strategy</li>
+          <li>Ledger hardware wallet support (WebUSB + Ledger XRPL app)</li>
+        </ul>
+        <ul>
+          <li>Security audit by external firm (focus: key management, RLS, rate limiting)</li>
+          <li>Penetration testing</li>
+          <li>FIPS 140-2 assessment for key management (optional, enterprise)</li>
+          <li>Performance optimization: Next.js edge caching for property listings</li>
+          <li>Disaster recovery runbook</li>
+          <li>Staging environment with production-mirror data (anonymized)</li>
+          <li>Rollout plan: blue/green deployment strategy</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>12.1 Milestone Summary</h3>
+    <table>
+      <thead>
+        <tr><th>Milestone</th><th>End of Week</th><th>Deliverable</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>M1: Foundation Complete</td><td>Week 4</td><td>Multi-tenant schema live, Supabase Auth working, Next.js app deployed, CI green</td></tr>
+        <tr><td>M2: First Token Minted</td><td>Week 8</td><td>Full tokenization flow on testnet: submit property → approve → mint MPT via Xaman</td></tr>
+        <tr><td>M3: First Trade</td><td>Week 12</td><td>User completes KYC, receives authorization, places buy order, trade executes on testnet</td></tr>
+        <tr><td>M4: First SaaS Tenant</td><td>Week 16</td><td>External tenant onboards via self-service wizard, customizes branding, invites users</td></tr>
+        <tr><td>M5: Production Launch</td><td>Week 20</td><td>Security audit complete, E2E tests passing, mainnet live for first paying tenant</td></tr>
+      </tbody>
+    </table>
+
+    <h3>12.2 Dependencies and Risks</h3>
+    <table>
+      <thead>
+        <tr><th>Risk</th><th>Probability</th><th>Impact</th><th>Mitigation</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>XRPL MPT amendment not yet fully deployed to mainnet</td><td>Low</td><td>High</td><td>Build on testnet first; monitor XRPL amendment voting; have NFT fallback ready</td></tr>
+        <tr><td>Xaman API breaking changes</td><td>Low</td><td>Medium</td><td>Abstract behind <code>auth-wallet-connect</code> edge function; swap provider without frontend changes</td></tr>
+        <tr><td>Supabase plan limits for edge function invocations</td><td>Medium</td><td>Medium</td><td>Implement rate limiting to stay within limits; monitor usage dashboard; upgrade plan proactively</td></tr>
+        <tr><td>KYC provider integration complexity</td><td>Medium</td><td>Medium</td><td>Budget extra week for KYC webhook testing; use Persona's sandbox environment thoroughly</td></tr>
+        <tr><td>IPFS availability / pinning costs</td><td>Low</td><td>Low</td><td>Use Pinata or Filebase for reliable pinning; cache IPFS content in Supabase Storage as backup</td></tr>
+        <tr><td>Multi-tenant RLS policy bugs</td><td>Medium</td><td>Critical</td><td>Automated RLS testing in CI: each policy tested with cross-tenant query attempt</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  SECTION 13: TECHNOLOGY CHOICES — V1 vs V2                    -->
+<!-- ============================================================ -->
+<div class="page page-break">
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">13</span>
+      <h2 class="section-title">Technology Choices — V1 vs V2 Comparison</h2>
+    </div>
+
+    <p>
+      This section consolidates every significant technology and architectural decision, comparing the V1
+      approach with the V2 specification and explaining the rationale for each change.
+    </p>
+
+    <table class="compare-table">
+      <thead>
+        <tr>
+          <th>Area</th>
+          <th>V1 (Current Prototype)</th>
+          <th>V2 (This Specification)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Frontend Framework</strong></td>
+          <td class="v1-bad">React 18 + Vite 5 (SPA)<br><em>No SSR; poor SEO; no middleware</em></td>
+          <td class="v2-good">Next.js 14 App Router<br>Server components for SEO; middleware for tenant routing</td>
+        </tr>
+        <tr>
+          <td><strong>Routing</strong></td>
+          <td class="v1-bad">React Router DOM v6<br><em>Client-side only; no tenant subdomain support</em></td>
+          <td class="v2-good">Next.js file-based routing + middleware<br>Subdomain resolved before first render</td>
+        </tr>
+        <tr>
+          <td><strong>Global State</strong></td>
+          <td class="v1-bad">ActiveWalletContext (god object)<br><em>300 lines, 7 responsibilities, stale closures</em></td>
+          <td class="v2-good">Zustand (wallet store) + React Query (server state)<br>Each hook has one responsibility</td>
+        </tr>
+        <tr>
+          <td><strong>Backend</strong></td>
+          <td>Supabase Edge Functions (Deno)</td>
+          <td class="v2-good">Supabase Edge Functions (Deno)<br>+ universal template + rate limiting + structured logging</td>
+        </tr>
+        <tr>
+          <td><strong>Database</strong></td>
+          <td class="v1-bad">Supabase PostgreSQL<br><em>No tenant_id; partial RLS; inconsistent policies</em></td>
+          <td class="v2-good">Supabase PostgreSQL<br>tenant_id on every table; RLS on all user-facing tables; policy CI tests</td>
+        </tr>
+        <tr>
+          <td><strong>Multi-Tenancy</strong></td>
+          <td class="v1-bad">None<br><em>Single tenant only; no isolation</em></td>
+          <td class="v2-good">Full multi-tenancy from day 1<br>DB isolation + API scoping + subdomain routing</td>
+        </tr>
+        <tr>
+          <td><strong>Key Storage</strong></td>
+          <td class="v1-bad">wallet_secret column in user_wallets<br><em>CRITICAL: raw private keys in plaintext DB</em></td>
+          <td class="v2-good">No private keys in DB ever<br>Vault refs only (wallet_vault_refs); no wallet_secret column</td>
+        </tr>
+        <tr>
+          <td><strong>Wallet Signing (Mainnet)</strong></td>
+          <td>Xaman QR signing</td>
+          <td class="v2-good">Xaman QR signing (primary)<br>Ledger hardware wallet (Phase 5)</td>
+        </tr>
+        <tr>
+          <td><strong>Wallet Signing (Testnet)</strong></td>
+          <td class="v1-bad">Auto-sign with stored wallet_secret<br><em>Per-user private keys in DB</em></td>
+          <td class="v2-good">Single platform-owned faucet wallet<br>No per-user key storage</td>
+        </tr>
+        <tr>
+          <td><strong>XRPL Calls</strong></td>
+          <td class="v1-bad">Sequential with 100ms delays<br><em>400–800ms unnecessary latency</em></td>
+          <td class="v2-good">Parallel via Promise.all()<br>Dynamic reserves from server_info</td>
+        </tr>
+        <tr>
+          <td><strong>XRPL Types</strong></td>
+          <td class="v1-bad">any throughout<br><em>No compile-time safety</em></td>
+          <td class="v2-good">Explicit TypeScript interfaces in xrpl-types.ts<br>Zero any in blockchain code (ESLint enforced)</td>
+        </tr>
+        <tr>
+          <td><strong>XRPL Utilities</strong></td>
+          <td class="v1-bad">decodeCurrency inline in each component<br><em>Duplicated, inconsistent</em></td>
+          <td class="v2-good">Shared xrpl-utils.ts library<br>decodeCurrency, formatAmount, explorerUrl — used everywhere</td>
+        </tr>
+        <tr>
+          <td><strong>Real-Time Data</strong></td>
+          <td class="v1-bad">Both WebSocket AND React Query polling<br><em>Two sources of truth; race conditions; flicker</em></td>
+          <td class="v2-good">WebSocket for tx confirmation only<br>React Query polling for portfolio (30s interval)</td>
+        </tr>
+        <tr>
+          <td><strong>Polling Intervals</strong></td>
+          <td class="v1-bad">Hardcoded at different values per file<br>(2000ms, 3000ms — inconsistent)</td>
+          <td class="v2-good">XRPL_POLL_INTERVAL_MS + XAMAN_POLL_INTERVAL_MS<br>Defined once in constants.ts</td>
+        </tr>
+        <tr>
+          <td><strong>Rate Limiting</strong></td>
+          <td class="v1-bad">None<br><em>Any caller can invoke unlimited requests</em></td>
+          <td class="v2-good">Token bucket rate limiting on every edge function<br>Per-user + per-function limits</td>
+        </tr>
+        <tr>
+          <td><strong>Error Boundaries</strong></td>
+          <td class="v1-bad">None<br><em>Any component error crashes entire app</em></td>
+          <td class="v2-good">Error Boundary on every major section<br>Portfolio, Mint, Marketplace, Marketplace isolated</td>
+        </tr>
+        <tr>
+          <td><strong>Logging</strong></td>
+          <td class="v1-bad">console.log() only<br><em>No structured format; no correlation IDs</em></td>
+          <td class="v2-good">Structured JSON logging<br>requestId, tenantId, userId, durationMs on every log line</td>
+        </tr>
+        <tr>
+          <td><strong>Error Reporting</strong></td>
+          <td class="v1-bad">None</td>
+          <td class="v2-good">Sentry integration (frontend + edge functions)<br>Automatic source map upload in CI</td>
+        </tr>
+        <tr>
+          <td><strong>Wallet Tables</strong></td>
+          <td class="v1-bad">user_wallets + wallet_profiles (redundant)<br><em>Two tables for same data; xaman-check-payload writes to both</em></td>
+          <td class="v2-good">user_wallets only<br>wallet_profiles removed; wallet_vault_refs for vault refs</td>
+        </tr>
+        <tr>
+          <td><strong>DB Type Generation</strong></td>
+          <td class="v1-bad">Manual; types.ts out of sync<br><em>token_mints cast as any</em></td>
+          <td class="v2-good">Automated in CI after every migration<br>PR blocks if types diff detected</td>
+        </tr>
+        <tr>
+          <td><strong>KYC</strong></td>
+          <td class="v1-bad">Not implemented<br><em>No identity verification; no MPTokenAuthorize flow</em></td>
+          <td class="v2-good">Pluggable KYC providers (Persona, Onfido)<br>MPTokenAuthorize on XRPL after approval</td>
+        </tr>
+        <tr>
+          <td><strong>Interval Cleanup</strong></td>
+          <td class="v1-bad">setInterval leaks on unmount<br><em>C3: no cleanup refs; 5-min timeout only mitigation</em></td>
+          <td class="v2-good">All intervals in useRef; cleared in useEffect cleanup<br>AbortController for cancellable polling</td>
+        </tr>
+        <tr>
+          <td><strong>Test Data</strong></td>
+          <td class="v1-bad">RANDOM_PROPERTIES in production MPTForm<br><em>~2KB dead weight; Math.random() in prod</em></td>
+          <td class="v2-good">Test fixtures in __tests__/fixtures/<br>Gated by NODE_ENV=development; never in prod bundle</td>
+        </tr>
+        <tr>
+          <td><strong>Inactivity Timeout</strong></td>
+          <td class="v1-bad">Embedded in ActiveWalletContext<br><em>Coupled to wallet state; hard to test</em></td>
+          <td class="v2-good">Standalone useInactivity() hook<br>Configurable per-tenant; self-contained</td>
+        </tr>
+        <tr>
+          <td><strong>Build Tool / Dev</strong></td>
+          <td>Lovable (AI-assisted; auto-commits)</td>
+          <td class="v2-good">Standard git workflow; Claude Code for AI assistance<br>ROSETTA.md for context; conventional commits</td>
+        </tr>
+        <tr>
+          <td><strong>Explorer Links</strong></td>
+          <td class="v1-bad">Hardcoded to livenet.xrpl.org<br><em>H4: testnet tx links always show "not found"</em></td>
+          <td class="v2-good">explorerUrl(txHash, network) utility<br>Correct URL for both mainnet and testnet</td>
+        </tr>
+        <tr>
+          <td><strong>XRPL Reserves</strong></td>
+          <td class="v1-bad">Hardcoded (1 XRP base, 0.2 XRP owner)<br><em>H7: can become wrong after governance vote</em></td>
+          <td class="v2-good">Fetched dynamically from server_info.validated_ledger<br>Included in every account data parallel fetch</td>
+        </tr>
+        <tr>
+          <td><strong>Testing</strong></td>
+          <td class="v1-bad">No automated tests</td>
+          <td class="v2-good">Edge function unit tests (Deno test)<br>Playwright E2E for critical flows<br>RLS policy tests in CI</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>13.1 Retained from V1</h3>
+    <p>
+      Not everything changes. The following V1 choices are deliberately retained in V2 because they
+      are sound decisions that simply need to be executed correctly:
+    </p>
+    <table>
+      <thead>
+        <tr><th>Component</th><th>Kept Because</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Supabase (PostgreSQL + Auth + Edge Functions)</td><td>Proven stack; built-in RLS; edge functions are ideal for XRPL proxy pattern; no lock-in risk</td></tr>
+        <tr><td>Xaman QR for mainnet signing</td><td>Best UX for hardware-equivalent security; user keeps keys; battle-tested XRPL wallet</td></tr>
+        <tr><td>shadcn/ui + Tailwind</td><td>No-lock-in component system; easy white-labeling; consistent design tokens via CSS variables</td></tr>
+        <tr><td>Browser → Edge Function → XRPL pattern</td><td>Correct security architecture; prevents browser-based key exposure; allows server-side request batching</td></tr>
+        <tr><td>MPT as primary token standard</td><td>XLS-33 is the correct XRPL token standard for regulated RWA; native compliance flags are superior to smart contract workarounds</td></tr>
+        <tr><td>React Query for server state</td><td>Best-in-class data fetching; caching; background refresh; optimistic updates — just needs to be used consistently</td></tr>
+        <tr><td>Deno runtime for edge functions</td><td>Native TypeScript; secure by default; compatible with Supabase Edge Functions</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  APPENDIX: SYSTEM OVERVIEW DIAGRAM                            -->
+<!-- ============================================================ -->
+<div class="page page-break">
+  <div class="section">
+    <div class="section-header">
+      <span class="section-num">A</span>
+      <h2 class="section-title">Appendix: Full System Architecture Diagram</h2>
+    </div>
+
+    <pre class="ascii-diagram" style="font-size: 7.5pt; line-height: 1.4;">
+┌─────────────────────────────────────────────────────────────────────────────────────┐
+│                              V2 SYSTEM ARCHITECTURE                                  │
+│                        Property Web3 Portal — Multi-Tenant                           │
+└─────────────────────────────────────────────────────────────────────────────────────┘
+
+INTERNET / DNS
+┌──────────────────────────────────────────────────────────────────────┐
+│  tenant1.platform.com        tenant2.platform.com       admin.pl...  │
+│  (CNAME → Vercel/platform)   (CNAME → Vercel/platform)               │
+└──────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                     NEXT.JS 14 (App Router)                          │
+│                                                                      │
+│  middleware.ts                                                       │
+│  ├── Extract tenant slug from subdomain                              │
+│  └── Set x-tenant-slug header                                        │
+│                                                                      │
+│  /(tenant) layout.tsx (Server Component)                             │
+│  ├── Fetch tenant config from Supabase (server-side)                 │
+│  ├── Inject branding as CSS custom properties                        │
+│  └── TenantConfigProvider → React context                            │
+│                                                                      │
+│  Pages (Server + Client Components):                                  │
+│  ├── / (property listings)      — Server Component (SSR, SEO)        │
+│  ├── /property/[id]             — Server Component (SSR)             │
+│  ├── /portfolio                 — Client Component (wallet data)     │
+│  ├── /mint                      — Client Component (Xaman wizard)    │
+│  ├── /marketplace               — Hybrid (listings SSR, orders CSR)  │
+│  └── /kyc                       — Client Component (KYC redirect)    │
+│                                                                      │
+│  Client State:                                                       │
+│  ├── Zustand: useWalletStore (connected wallets, active wallet)      │
+│  ├── React Query: useXRPLAccount, useXRPLPortfolio, useTokenOrders   │
+│  └── XRPL WebSocket: tx confirmation only (one connection per user)  │
+└──────────────────────────┬──────────────────────────────────────────┘
+                           │ supabase.functions.invoke() (JWT in header)
+                           ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                   SUPABASE EDGE FUNCTIONS (Deno)                     │
+│                                                                      │
+│  All functions follow universal template:                            │
+│  CORS → JWT verify → tenant_id extract → rate limit → business logic │
+│                                                                      │
+│  Auth:     auth-wallet-connect, auth-wallet-verify, auth-wallet-disc │
+│  XRPL:     xrpl-account-info (parallel), xrpl-build-tx, submit-tx   │
+│  Token:    token-create/approve/mint/transfer/freeze/redeem/authorize│
+│  Property: property-submit, property-review, property-valuation      │
+│  Market:   order-create, order-fill, order-cancel, price-history     │
+│  Tenant:   tenant-create, tenant-config, tenant-invite               │
+│  KYC:      kyc-initiate, kyc-webhook, kyc-authorize-wallet           │
+└──────────────────────────┬──────────────────────────────────────────┘
+           │               │                  │
+           ▼               ▼                  ▼
+┌──────────────┐  ┌────────────────┐  ┌──────────────────────────────┐
+│  SUPABASE DB │  │  SUPABASE VAULT│  │        XRPL NETWORK          │
+│  (PostgreSQL)│  │  (pgsodium HSM)│  │                              │
+│              │  │                │  │  mainnet: xrplcluster.com    │
+│  tenants     │  │  Platform      │  │  testnet: altnet.ripple.net  │
+│  profiles    │  │  issuer key    │  │                              │
+│  user_wallets│  │  (vault ref    │  │  MPTokenIssuanceCreate       │
+│  wallet_vault│  │   only in DB)  │  │  MPTokenMint                 │
+│  _refs       │  │                │  │  MPTokenTransfer             │
+│  properties  │  │  Never:        │  │  MPTokenAuthorize            │
+│  token_      │  │  wallet_secret │  │  MPTokenIssuanceSet          │
+│  issuances   │  │  column        │  │  NFTokenMint                 │
+│  token_      │  │                │  │                              │
+│  holdings    │  │  Future:       │  │  Failover: try nodes         │
+│  token_orders│  │  AWS KMS /     │  │  in order; exp. backoff      │
+│  kyc_verify  │  │  HashiCorp     │  │  (not fixed sleep)           │
+│  audit_log   │  │                │  │                              │
+│  wallet_     │  └────────────────┘  └──────────────────────────────┘
+│  audit_log   │
+│  (append-    │  ┌────────────────┐  ┌──────────────────────────────┐
+│  only tables)│  │  KYC PROVIDER  │  │      XAMAN (XUMM)            │
+│              │  │                │  │                              │
+│  RLS on all  │  │  Persona /     │  │  QR code signing for all     │
+│  user tables │  │  Onfido /      │  │  mainnet transactions        │
+│  tenant_id   │  │  Manual        │  │                              │
+│  isolation   │  │                │  │  kyc-webhook receives        │
+│              │  │  PII stored at │  │  Xaman payload completion    │
+└──────────────┘  │  provider only │  │  (user never sends key to    │
+                  │  (not in our   │  │   server — key stays on      │
+                  │   DB)          │  │   user's phone)              │
+                  └────────────────┘  └──────────────────────────────┘
+    </pre>
+
+    <h3>A.1 Data Flow — Token Purchase (Happy Path)</h3>
+    <pre class="ascii-diagram" style="font-size: 7.5pt;">
+Browser               Next.js             Edge Fn             Supabase DB           XRPL
+  │                     │                    │                      │                 │
+  ├─ Place buy order ──►│                    │                      │                 │
+  │                     ├─ order-create ────►│                      │                 │
+  │                     │                    ├─ Validate KYC ──────►│                 │
+  │                     │                    ├─ Check token avail ─►│                 │
+  │                     │                    ├─ Store order ────────►│                 │
+  │◄──────────────────────────────────────── order_id               │                 │
+  │                     │                    │                      │                 │
+  │ [Order matched by platform]              │                      │                 │
+  │                     │                    │                      │                 │
+  ├─ Request tx build ─►│                    │                      │                 │
+  │                     ├─ xrpl-build-tx ───►│                      │                 │
+  │                     │                    ├─ Build MPToken ──────────────────────►(build)
+  │◄──────────────────────── unsigned_tx_blob│                      │                 │
+  │                     │                    │                      │                 │
+  ├─ Show Xaman QR     │                    │                      │                 │
+  │  (user scans)       │                    │                      │                 │
+  │                     │                    │                      │                 │
+  │  [User approves on Xaman mobile]         │                      │                 │
+  │                     │                    │                      │                 │
+  ├─ signed_blob ──────►│                    │                      │                 │
+  │                     ├─ xrpl-submit-tx ──►│                      │                 │
+  │                     │                    ├─ Submit tx ──────────────────────────►│
+  │                     │                    │◄───────────────────────── tx_result ──┤
+  │                     │                    │                      │                 │
+  │                     │                    ├─ Update holdings ────►│                 │
+  │                     │                    ├─ Write audit_log ────►│                 │
+  │                     │                    ├─ Update order ───────►│                 │
+  │                     │                    ├─ Write price_history ►│                 │
+  │◄──────────────────── tx_hash + explorer_url                     │                 │
+    </pre>
+
+    <h3>A.2 Quick Reference — Key Files in V2</h3>
+    <table>
+      <thead>
+        <tr><th>File Path</th><th>Purpose</th><th>Read When</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>middleware.ts</code></td><td>Tenant subdomain extraction</td><td>Tenant routing issues</td></tr>
+        <tr><td><code>src/lib/xrpl-types.ts</code></td><td>All XRPL TypeScript interfaces</td><td>Adding XRPL integration</td></tr>
+        <tr><td><code>src/lib/xrpl-utils.ts</code></td><td>decodeCurrency, formatAmount, explorerUrl</td><td>Displaying XRPL data</td></tr>
+        <tr><td><code>src/lib/constants.ts</code></td><td>XRPL_POLL_INTERVAL_MS, XAMAN_POLL_INTERVAL_MS</td><td>Any polling or timing code</td></tr>
+        <tr><td><code>src/hooks/useWalletStore.ts</code></td><td>Zustand wallet state</td><td>Any wallet state access</td></tr>
+        <tr><td><code>src/hooks/useWalletConnect.ts</code></td><td>Xaman connect/verify flow</td><td>Wallet connection UI</td></tr>
+        <tr><td><code>src/hooks/useInactivity.ts</code></td><td>Inactivity auto-disconnect</td><td>Session management</td></tr>
+        <tr><td><code>supabase/functions/_shared/</code></td><td>cors.ts, logger.ts, rate-limit.ts, auth.ts</td><td>Writing new edge functions</td></tr>
+        <tr><td><code>src/lib/supabase/client.ts</code></td><td>Supabase browser client (singleton)</td><td>Never create new client elsewhere</td></tr>
+        <tr><td><code>src/lib/supabase/types.ts</code></td><td>Auto-generated DB types (DO NOT edit)</td><td>Type-safe DB queries</td></tr>
+        <tr><td><code>ROSETTA.md</code></td><td>Project context for AI agents</td><td>Start of every session</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!--  FOOTER                                                        -->
+<!-- ============================================================ -->
+<div class="footer">
+  <div class="footer-left">Property Web3 Portal &mdash; V2 Architecture Blueprint</div>
+  <div class="footer-center">CONFIDENTIAL &mdash; Internal Engineering Document</div>
+  <div class="footer-right">March 2026</div>
+</div>
+
+</body>
+</html>
